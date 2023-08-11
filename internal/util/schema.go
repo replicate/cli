@@ -63,15 +63,19 @@ func CoerceTypes(inputs map[string]string, schema *openapi3.Schema) (map[string]
 	coerced := map[string]interface{}{}
 	for k, v := range inputs {
 		prop, ok := schema.Properties[k]
-		if !ok {
-			return nil, fmt.Errorf("unknown property %s", k)
+		if ok {
+			coercedValue, err := coerceType(v, prop.Value)
+			if err != nil {
+				return nil, fmt.Errorf("failed to coerce %s to type %s for property %s: %w", v, prop.Value.Type, k, err)
+			}
+			coerced[k] = coercedValue
+		} else {
+			if guessedValue, err := guessType(v); err == nil {
+				coerced[k] = guessedValue
+			} else {
+				coerced[k] = v
+			}
 		}
-
-		coercedValue, err := coerceType(v, prop.Value)
-		if err != nil {
-			return nil, fmt.Errorf("failed to coerce %s to type %s for property %s: %w", v, prop.Value.Type, k, err)
-		}
-		coerced[k] = coercedValue
 	}
 
 	return coerced, nil
@@ -106,4 +110,21 @@ func coerceType(input string, schema *openapi3.Schema) (interface{}, error) {
 	default:
 		return nil, fmt.Errorf("unknown type %s", schema.Type)
 	}
+}
+
+// guessType attempts to guess the type of a string for an input without a schema
+func guessType(input string) (interface{}, error) {
+	if input == "true" || input == "false" {
+		return strconv.ParseBool(input)
+	}
+
+	if _, err := strconv.Atoi(input); err == nil {
+		return strconv.Atoi(input)
+	}
+
+	if _, err := strconv.ParseFloat(input, 64); err == nil {
+		return strconv.ParseFloat(input, 64)
+	}
+
+	return input, nil
 }
