@@ -4,6 +4,7 @@ go 1.20
 
 require (
 	github.com/PaesslerAG/jsonpath v0.1.1
+	github.com/PuerkitoBio/goquery v1.8.1
 	github.com/briandowns/spinner v1.23.0
 	github.com/charmbracelet/bubbles v0.16.1
 	github.com/charmbracelet/bubbletea v0.24.2
@@ -19,6 +20,7 @@ require (
 
 require (
 	github.com/PaesslerAG/gval v1.2.2 // indirect
+	github.com/andybalholm/cascadia v1.3.1 // indirect
 	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
 	github.com/containerd/console v1.0.4-0.20230313162750-1ae8d489ac81 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
@@ -45,6 +47,7 @@ require (
 	github.com/rogpeppe/go-internal v1.11.0 // indirect
 	github.com/shopspring/decimal v1.3.1 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
+	golang.org/x/net v0.7.0 // indirect
 	golang.org/x/sync v0.3.0 // indirect
 	golang.org/x/sys v0.11.0 // indirect
 	golang.org/x/term v0.11.0 // indirect

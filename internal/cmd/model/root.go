@@ -16,6 +16,7 @@ func init() {
 		Title: "Subcommands:",
 	})
 	for _, cmd := range []*cobra.Command{
+		listCmd,
 		showCmd,
 		schemaCmd,
 	} {
