@@ -46,9 +46,9 @@ func TestCoerceTypesWithSchema(t *testing.T) {
 
 	t.Run("integer", func(t *testing.T) {
 		t.Run("valid", func(t *testing.T) {
-			for _, input := range []string{"1"} {
+			for _, value := range []string{"1"} {
 				inputs := map[string]string{
-					"integer": input,
+					"integer": value,
 				}
 
 				coercedInputs, err := util.CoerceTypes(inputs, schema)
@@ -60,9 +60,9 @@ func TestCoerceTypesWithSchema(t *testing.T) {
 		})
 
 		t.Run("invalid", func(t *testing.T) {
-			for _, input := range []string{"1.23", "a", "true", ""} {
+			for _, value := range []string{"1.23", "a", "true", " ", ""} {
 				inputs := map[string]string{
-					"integer": input,
+					"integer": value,
 				}
 
 				_, err := util.CoerceTypes(inputs, schema)
@@ -73,9 +73,9 @@ func TestCoerceTypesWithSchema(t *testing.T) {
 
 	t.Run("number", func(t *testing.T) {
 		t.Run("integer", func(t *testing.T) {
-			for _, input := range []string{"1234", "1_234"} {
+			for _, value := range []string{"1234", "1_234"} {
 				inputs := map[string]string{
-					"number": input,
+					"number": value,
 				}
 
 				coercedInputs, err := util.CoerceTypes(inputs, schema)
@@ -86,9 +86,9 @@ func TestCoerceTypesWithSchema(t *testing.T) {
 			}
 		})
 		t.Run("decimal", func(t *testing.T) {
-			for _, input := range []string{"1.0", "1.00"} {
+			for _, value := range []string{"1.0", "1.00"} {
 				inputs := map[string]string{
-					"number": input,
+					"number": value,
 				}
 
 				coercedInputs, err := util.CoerceTypes(inputs, schema)
@@ -100,9 +100,9 @@ func TestCoerceTypesWithSchema(t *testing.T) {
 		})
 
 		t.Run("invalid", func(t *testing.T) {
-			for _, input := range []string{"1.1.1", "a", ""} {
+			for _, value := range []string{"1.1.1", "a", " ", ""} {
 				inputs := map[string]string{
-					"number": input,
+					"number": value,
 				}
 
 				_, err := util.CoerceTypes(inputs, schema)
@@ -113,9 +113,9 @@ func TestCoerceTypesWithSchema(t *testing.T) {
 
 	t.Run("boolean", func(t *testing.T) {
 		t.Run("true", func(t *testing.T) {
-			for _, input := range []string{"true", "True", "TRUE", "1"} {
+			for _, value := range []string{"true", "True", "TRUE", "1"} {
 				inputs := map[string]string{
-					"boolean": input,
+					"boolean": value,
 				}
 
 				coercedInputs, err := util.CoerceTypes(inputs, schema)
@@ -127,9 +127,9 @@ func TestCoerceTypesWithSchema(t *testing.T) {
 		})
 
 		t.Run("false", func(t *testing.T) {
-			for _, input := range []string{"false", "False", "FALSE", "0"} {
+			for _, value := range []string{"false", "False", "FALSE", "0"} {
 				inputs := map[string]string{
-					"boolean": input,
+					"boolean": value,
 				}
 
 				coercedInputs, err := util.CoerceTypes(inputs, schema)
@@ -141,9 +141,9 @@ func TestCoerceTypesWithSchema(t *testing.T) {
 		})
 
 		t.Run("invalid", func(t *testing.T) {
-			for _, input := range []string{"100", "a", ""} {
+			for _, value := range []string{"100", "a", " ", ""} {
 				inputs := map[string]string{
-					"boolean": input,
+					"boolean": value,
 				}
 
 				_, err := util.CoerceTypes(inputs, schema)
@@ -153,36 +153,38 @@ func TestCoerceTypesWithSchema(t *testing.T) {
 	})
 
 	t.Run("string", func(t *testing.T) {
-		for _, input := range []string{"hello", "1234", "true", ""} {
+		for _, value := range []string{"hello", "1234", "true", " ", ""} {
 			inputs := map[string]string{
-				"string": input,
+				"string": value,
 			}
 
 			coercedInputs, err := util.CoerceTypes(inputs, schema)
 			assert.NoError(t, err)
 			assert.Equal(t, map[string]interface{}{
-				"string": input,
+				"string": value,
 			}, coercedInputs)
 		}
 	})
 
 	t.Run("array of integers", func(t *testing.T) {
 		t.Run("valid", func(t *testing.T) {
-			inputs := map[string]string{
-				"array[integer]": `[1,2,3]`,
-			}
+			for _, value := range []string{`[1,2,3]`, ` [ 1 , 2 , 3 ] `} {
+				inputs := map[string]string{
+					"array[integer]": value,
+				}
 
-			coercedInputs, err := util.CoerceTypes(inputs, schema)
-			assert.NoError(t, err)
-			assert.Equal(t, map[string]interface{}{
-				"array[integer]": []interface{}{1, 2, 3},
-			}, coercedInputs)
+				coercedInputs, err := util.CoerceTypes(inputs, schema)
+				assert.NoError(t, err)
+				assert.Equal(t, map[string]interface{}{
+					"array[integer]": []interface{}{1, 2, 3},
+				}, coercedInputs)
+			}
 		})
 
 		t.Run("invalid", func(t *testing.T) {
-			for _, input := range []string{`[1, true, "a"]`, ``} {
+			for _, value := range []string{`[1, true, "a"]`, ``} {
 				inputs := map[string]string{
-					"array[integer]": input,
+					"array[integer]": value,
 				}
 
 				_, err := util.CoerceTypes(inputs, schema)
