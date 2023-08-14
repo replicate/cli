@@ -62,28 +62,26 @@ func xorder(prop *openapi3.SchemaRef) float64 {
 func CoerceTypes(inputs map[string]string, schema *openapi3.Schema) (map[string]interface{}, error) {
 	coerced := map[string]interface{}{}
 	for k, v := range inputs {
-		prop, ok := schema.Properties[k]
-		if ok {
-			coercedValue, err := coerceType(v, prop.Value)
-			if err != nil {
-				return nil, fmt.Errorf("failed to coerce %s to type %s for property %s: %w", v, prop.Value.Type, k, err)
-			}
-			coerced[k] = coercedValue
-		} else {
-			if guessedValue, err := guessType(v); err == nil {
-				coerced[k] = guessedValue
-			} else {
-				coerced[k] = v
-			}
+		prop, _ := schema.Properties[k]
+		coercedValue, err := coerceType(v, prop)
+		if err != nil {
+			return nil, fmt.Errorf("failed to coerce %s for property %s: %w", v, k, err)
 		}
+		coerced[k] = coercedValue
 	}
 
 	return coerced, nil
 }
 
 // coerceType converts a string to the type specified in the schema
-func coerceType(input string, schema *openapi3.Schema) (interface{}, error) {
-	switch schema.Type {
+func coerceType(input string, schema *openapi3.SchemaRef) (interface{}, error) {
+	if schema == nil {
+		value := interface{}(input)
+		err := json.Unmarshal([]byte(input), &value)
+		return value, err
+	}
+
+	switch schema.Value.Type {
 	case "integer":
 		return strconv.Atoi(input)
 	case "number":
@@ -93,38 +91,24 @@ func coerceType(input string, schema *openapi3.Schema) (interface{}, error) {
 	case "string":
 		return input, nil
 	case "array":
-		var arr []string
-		if err := json.Unmarshal([]byte(input), &arr); err != nil {
-			return nil, fmt.Errorf("failed to convert %s to array: %w", input, err)
-		}
-
-		var coerced []interface{}
-		for _, item := range arr {
-			coercedItem, err := coerceType(item, schema.Items.Value)
+		var value []interface{}
+		err := json.Unmarshal([]byte(input), &value)
+		for i, v := range value {
+			encoded, err := json.Marshal(v)
 			if err != nil {
-				return nil, fmt.Errorf("failed to coerce item %s: %w", item, err)
+				return nil, fmt.Errorf("failed to marshal item %d: %w", i, err)
 			}
-			coerced = append(coerced, coercedItem)
+
+			coerced, err := coerceType(string(encoded), schema.Value.Items)
+			if err != nil {
+				return nil, fmt.Errorf("failed to coerce item %d: %w", i, err)
+			}
+
+			value[i] = coerced
 		}
-		return coerced, nil
+
+		return value, err
 	default:
-		return nil, fmt.Errorf("unknown type %s", schema.Type)
+		return nil, fmt.Errorf("unknown type %s", schema.Value.Type)
 	}
-}
-
-// guessType attempts to guess the type of a string for an input without a schema
-func guessType(input string) (interface{}, error) {
-	if input == "true" || input == "false" {
-		return strconv.ParseBool(input)
-	}
-
-	if _, err := strconv.Atoi(input); err == nil {
-		return strconv.Atoi(input)
-	}
-
-	if _, err := strconv.ParseFloat(input, 64); err == nil {
-		return strconv.ParseFloat(input, 64)
-	}
-
-	return input, nil
 }
