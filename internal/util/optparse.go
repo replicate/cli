@@ -11,7 +11,6 @@ import (
 	"strings"
 
 	"github.com/PaesslerAG/jsonpath"
-	"github.com/replicate/cli/internal/client"
 )
 
 func ParseInputs(ctx context.Context, args []string, stdin string, sep string) (map[string]string, error) {
@@ -56,7 +55,7 @@ func ParseInputs(ctx context.Context, args []string, stdin string, sep string) (
 		// Read from file
 		if strings.HasPrefix(v, "@") {
 			path := strings.TrimSpace(v[1:])
-			downloadURL, err := client.UploadFile(ctx, path)
+			downloadURL, err := UploadFile(ctx, path)
 			if err != nil {
 				return nil, fmt.Errorf("failed to upload file: %w", err)
 			}
