@@ -1,4 +1,4 @@
-package client
+package util
 
 import (
 	"context"
@@ -12,8 +12,6 @@ import (
 
 // uploadFile uploads a Zip file to Replicate's experimental DreamBooth API and returns the URL
 func UploadFile(ctx context.Context, path string) (string, error) {
-	// fmt.Printf("Uploading file: %s\n", path)
-
 	// Open the file
 	file, err := os.Open(path)
 	if err != nil {
@@ -31,6 +29,9 @@ func UploadFile(ctx context.Context, path string) (string, error) {
 	if fileType != "application/zip" {
 		return "", fmt.Errorf("file is not a zip file")
 	}
+
+	// Reset the file pointer
+	file.Seek(0, io.SeekStart)
 
 	// Get the upload URL
 	request, err := http.NewRequestWithContext(ctx, "POST", "https://dreambooth-api-experimental.replicate.com/v1/upload/data.zip", nil)
@@ -58,9 +59,6 @@ func UploadFile(ctx context.Context, path string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("failed to parse upload response: %w", err)
 	}
-
-	// fmt.Printf("upload URL: %v\n", uploadResponse.UploadURL)
-	// fmt.Printf("serving URL: %v\n", uploadResponse.ServingURL)
 
 	// Upload the file
 	uploadURL, _ := url.Parse(uploadResponse.UploadURL)
