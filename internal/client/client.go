@@ -32,6 +32,9 @@ func UploadFile(ctx context.Context, path string) (string, error) {
 		return "", fmt.Errorf("file is not a zip file")
 	}
 
+	// Reset the file pointer
+	file.Seek(0, io.SeekStart)
+
 	// Get the upload URL
 	request, err := http.NewRequestWithContext(ctx, "POST", "https://dreambooth-api-experimental.replicate.com/v1/upload/data.zip", nil)
 	if err != nil {
