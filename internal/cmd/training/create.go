@@ -73,12 +73,7 @@ var CreateCmd = &cobra.Command{
 			return fmt.Errorf("failed to parse inputs: %w", err)
 		}
 
-		inputSchema, _, err := util.GetSchemas(*version)
-		if err != nil {
-			return fmt.Errorf("failed to get input schema for version: %w", err)
-		}
-
-		coercedInputs, err := util.CoerceTypes(inputs, inputSchema.Value)
+		coercedInputs, err := util.CoerceTypes(inputs, nil)
 		if err != nil {
 			return fmt.Errorf("failed to coerce inputs: %w", err)
 		}
