@@ -31,7 +31,7 @@ func TestParseInputs(t *testing.T) {
 	}, inputs)
 }
 
-func TestCoerceTypes(t *testing.T) {
+func TestCoerceTypesWithSchema(t *testing.T) {
 	schema := openapi3.NewSchema()
 	schema.Type = "object"
 	schema.Properties = map[string]*openapi3.SchemaRef{
@@ -214,5 +214,78 @@ func TestCoerceTypes(t *testing.T) {
 				assert.Error(t, err)
 			}
 		})
+	})
+}
+
+func TestCoerceTypesWithoutSchema(t *testing.T) {
+	t.Run("coerced to number", func(t *testing.T) {
+		for _, value := range []string{"1", "1.0", "1.00"} {
+			inputs := map[string]string{
+				"foo": value,
+			}
+
+			coercedInputs, err := util.CoerceTypes(inputs, nil)
+			assert.NoError(t, err)
+			assert.Equal(t, map[string]interface{}{
+				"foo": float64(1),
+			}, coercedInputs)
+		}
+	})
+
+	t.Run("coerced to true", func(t *testing.T) {
+		for _, value := range []string{"true"} {
+			inputs := map[string]string{
+				"foo": value,
+			}
+
+			coercedInputs, err := util.CoerceTypes(inputs, nil)
+			assert.NoError(t, err)
+			assert.Equal(t, map[string]interface{}{
+				"foo": true,
+			}, coercedInputs)
+		}
+	})
+
+	t.Run("coerced to false", func(t *testing.T) {
+		for _, value := range []string{"false"} {
+			inputs := map[string]string{
+				"foo": value,
+			}
+
+			coercedInputs, err := util.CoerceTypes(inputs, nil)
+			assert.NoError(t, err)
+			assert.Equal(t, map[string]interface{}{
+				"foo": false,
+			}, coercedInputs)
+		}
+	})
+
+	t.Run("coerced to string", func(t *testing.T) {
+		for _, value := range []string{"hello", `[world]`, " ", ""} {
+			inputs := map[string]string{
+				"foo": value,
+			}
+
+			coercedInputs, err := util.CoerceTypes(inputs, nil)
+			assert.NoError(t, err)
+			assert.Equal(t, map[string]interface{}{
+				"foo": value,
+			}, coercedInputs)
+		}
+	})
+
+	t.Run("coerced to array", func(t *testing.T) {
+		for _, value := range []string{`[1,2,3]`, `[1.0, 2.0, 3.0]`, ` [ 1 , 2 , 3 ] `} {
+			inputs := map[string]string{
+				"foo": value,
+			}
+
+			coercedInputs, err := util.CoerceTypes(inputs, nil)
+			assert.NoError(t, err)
+
+			assert.Equal(t, map[string]interface{}{
+				"foo": []interface{}{float64(1), float64(2), float64(3)},
+			}, coercedInputs)
+		}
 	})
 }

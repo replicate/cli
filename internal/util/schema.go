@@ -62,8 +62,15 @@ func xorder(prop *openapi3.SchemaRef) float64 {
 func CoerceTypes(inputs map[string]string, schema *openapi3.Schema) (map[string]interface{}, error) {
 	coerced := map[string]interface{}{}
 	for k, v := range inputs {
-		prop, _ := schema.Properties[k]
-		coercedValue, err := coerceType(v, prop)
+		var propSchema *openapi3.Schema
+		if schema != nil {
+			prop, ok := schema.Properties[k]
+			if ok {
+				propSchema = prop.Value
+			}
+		}
+
+		coercedValue, err := coerceType(v, propSchema)
 		if err != nil {
 			return nil, fmt.Errorf("failed to coerce %s for property %s: %w", v, k, err)
 		}
@@ -74,14 +81,17 @@ func CoerceTypes(inputs map[string]string, schema *openapi3.Schema) (map[string]
 }
 
 // coerceType converts a string to the type specified in the schema
-func coerceType(input string, schema *openapi3.SchemaRef) (interface{}, error) {
+func coerceType(input string, schema *openapi3.Schema) (interface{}, error) {
 	if schema == nil {
-		value := interface{}(input)
-		err := json.Unmarshal([]byte(input), &value)
-		return value, err
+		encoded := interface{}(input)
+		if err := json.Unmarshal([]byte(input), &encoded); err == nil {
+			return encoded, nil
+		}
+
+		return input, nil
 	}
 
-	switch schema.Value.Type {
+	switch schema.Type {
 	case "integer":
 		return strconv.Atoi(input)
 	case "number":
@@ -99,7 +109,7 @@ func coerceType(input string, schema *openapi3.SchemaRef) (interface{}, error) {
 				return nil, fmt.Errorf("failed to marshal item %d: %w", i, err)
 			}
 
-			coerced, err := coerceType(string(encoded), schema.Value.Items)
+			coerced, err := coerceType(string(encoded), schema.Items.Value)
 			if err != nil {
 				return nil, fmt.Errorf("failed to coerce item %d: %w", i, err)
 			}
@@ -109,6 +119,6 @@ func coerceType(input string, schema *openapi3.SchemaRef) (interface{}, error) {
 
 		return value, err
 	default:
-		return nil, fmt.Errorf("unknown type %s", schema.Value.Type)
+		return nil, fmt.Errorf("unknown type %s", schema.Type)
 	}
 }
