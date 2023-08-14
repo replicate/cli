@@ -1,6 +1,7 @@
 package util_test
 
 import (
+	"context"
 	"testing"
 
 	"github.com/getkin/kin-openapi/openapi3"
@@ -8,7 +9,29 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestCoerceTypesWithSchema(t *testing.T) {
+func TestParseInputs(t *testing.T) {
+	args := []string{
+		"integer=1",
+		"number=1.0",
+		"boolean=true",
+		"string=hello",
+		"array_of_integers=[1,2,3]",
+	}
+
+	ctx := context.Background()
+	inputs, err := util.ParseInputs(ctx, args, "", "=")
+
+	assert.NoError(t, err)
+	assert.Equal(t, map[string]string{
+		"integer":           "1",
+		"number":            "1.0",
+		"boolean":           "true",
+		"string":            "hello",
+		"array_of_integers": "[1,2,3]",
+	}, inputs)
+}
+
+func TestCoerceTypes(t *testing.T) {
 	schema := openapi3.NewSchema()
 	schema.Type = "object"
 	schema.Properties = map[string]*openapi3.SchemaRef{
@@ -32,7 +55,7 @@ func TestCoerceTypesWithSchema(t *testing.T) {
 				Type: "string",
 			},
 		},
-		"array[integer]": {
+		"array_of_integers": {
 			Value: &openapi3.Schema{
 				Type: "array",
 				Items: &openapi3.SchemaRef{
@@ -170,13 +193,13 @@ func TestCoerceTypesWithSchema(t *testing.T) {
 		t.Run("valid", func(t *testing.T) {
 			for _, value := range []string{`[1,2,3]`, ` [ 1 , 2 , 3 ] `} {
 				inputs := map[string]string{
-					"array[integer]": value,
+					"array_of_integers": value,
 				}
 
 				coercedInputs, err := util.CoerceTypes(inputs, schema)
 				assert.NoError(t, err)
 				assert.Equal(t, map[string]interface{}{
-					"array[integer]": []interface{}{1, 2, 3},
+					"array_of_integers": []interface{}{1, 2, 3},
 				}, coercedInputs)
 			}
 		})
@@ -184,7 +207,7 @@ func TestCoerceTypesWithSchema(t *testing.T) {
 		t.Run("invalid", func(t *testing.T) {
 			for _, value := range []string{`[1, true, "a"]`, ``} {
 				inputs := map[string]string{
-					"array[integer]": value,
+					"array_of_integers": value,
 				}
 
 				_, err := util.CoerceTypes(inputs, schema)
