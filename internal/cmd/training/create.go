@@ -124,7 +124,7 @@ func AddCreateFlags(cmd *cobra.Command) {
 
 	cmd.Flags().Bool("json", false, "Emit JSON")
 	cmd.Flags().Bool("web", false, "View on web")
-	cmd.Flags().StringP("separator", "s", "=", "Separator between input key and value")
+	cmd.Flags().String("separator", "=", "Separator between input key and value")
 
 	cmd.MarkFlagsMutuallyExclusive("json", "web")
 }

@@ -172,7 +172,7 @@ func AddCreateFlags(cmd *cobra.Command) {
 	cmd.Flags().Bool("no-wait", false, "Don't wait for prediction to complete")
 	cmd.Flags().BoolP("wait", "w", true, "Wait for prediction to complete")
 	cmd.Flags().Bool("web", false, "View on web")
-	cmd.Flags().StringP("separator", "s", "=", "Separator between input key and value")
+	cmd.Flags().String("separator", "=", "Separator between input key and value")
 
 	cmd.MarkFlagsMutuallyExclusive("json", "web")
 	cmd.MarkFlagsMutuallyExclusive("wait", "no-wait")
