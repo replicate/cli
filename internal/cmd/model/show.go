@@ -1,6 +1,7 @@
 package model
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"github.com/cli/browser"
@@ -54,6 +55,15 @@ var showCmd = &cobra.Command{
 		model, err = client.GetModel(ctx, id.Owner, id.Name)
 		if err != nil {
 			return fmt.Errorf("failed to get model: %w", err)
+		}
+
+		if cmd.Flags().Changed("json") || !util.IsTTY() {
+			bytes, err := json.MarshalIndent(model, "", "  ")
+			if err != nil {
+				return fmt.Errorf("failed to marshal model: %w", err)
+			}
+			fmt.Println(string(bytes))
+			return nil
 		}
 
 		if id.Version != "" {
