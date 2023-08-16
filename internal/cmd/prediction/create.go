@@ -3,6 +3,7 @@ package prediction
 import (
 	"encoding/json"
 	"fmt"
+	"path/filepath"
 	"time"
 
 	"github.com/briandowns/spinner"
@@ -144,6 +145,25 @@ var CreateCmd = &cobra.Command{
 						return fmt.Errorf("failed to marshal output: %w", err)
 					}
 					fmt.Println(string(bytes))
+
+					if cmd.Flags().Changed("save") {
+						var dirname string
+						if cmd.Flags().Changed("output-directory") {
+							dirname = cmd.Flag("output-directory").Value.String()
+						} else {
+							dirname = fmt.Sprintf("./%s", prediction.ID)
+						}
+
+						dir, err := filepath.Abs(dirname)
+						if err != nil {
+							return fmt.Errorf("failed to create output directory: %w", err)
+						}
+
+						err = util.DownloadPrediction(ctx, *prediction, dir)
+						if err != nil {
+							return fmt.Errorf("failed to save output: %w", err)
+						}
+					}
 				case replicate.Failed:
 					fmt.Println("❌ Failed")
 					fmt.Println(*prediction.Logs)
@@ -172,7 +192,9 @@ func AddCreateFlags(cmd *cobra.Command) {
 	cmd.Flags().Bool("no-wait", false, "Don't wait for prediction to complete")
 	cmd.Flags().BoolP("wait", "w", true, "Wait for prediction to complete")
 	cmd.Flags().Bool("web", false, "View on web")
-	cmd.Flags().StringP("separator", "s", "=", "Separator between input key and value")
+	cmd.Flags().String("separator", "=", "Separator between input key and value")
+	cmd.Flags().BoolP("save", "s", false, "Save prediction to file")
+	cmd.Flags().String("output-directory", "", "Output directory, defaults to ./{prediction-id}")
 
 	cmd.MarkFlagsMutuallyExclusive("json", "web")
 	cmd.MarkFlagsMutuallyExclusive("wait", "no-wait")
