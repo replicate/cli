@@ -193,7 +193,7 @@ func AddCreateFlags(cmd *cobra.Command) {
 	cmd.Flags().BoolP("wait", "w", true, "Wait for prediction to complete")
 	cmd.Flags().Bool("web", false, "View on web")
 	cmd.Flags().String("separator", "=", "Separator between input key and value")
-	cmd.Flags().BoolP("save", "s", false, "Save prediction to file")
+	cmd.Flags().Bool("save", false, "Save prediction outputs to directory")
 	cmd.Flags().String("output-directory", "", "Output directory, defaults to ./{prediction-id}")
 
 	cmd.MarkFlagsMutuallyExclusive("json", "web")
