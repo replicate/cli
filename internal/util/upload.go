@@ -70,7 +70,10 @@ func UploadFile(ctx context.Context, path string) (string, error) {
 	request.Header.Set("Content-Type", contentType)
 
 	// Reset the file pointer
-	file.Seek(0, io.SeekStart)
+	_, err = file.Seek(0, io.SeekStart)
+	if err != nil {
+		return "", fmt.Errorf("failed to reset file pointer: %w", err)
+	}
 
 	request.Body = file
 
