@@ -8,9 +8,10 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"path/filepath"
 )
 
-// uploadFile uploads a Zip file to Replicate's experimental DreamBooth API and returns the URL
+// uploadFile uploads a file to Replicate's experimental DreamBooth API and returns the URL
 func UploadFile(ctx context.Context, path string) (string, error) {
 	// Open the file
 	file, err := os.Open(path)
@@ -19,22 +20,9 @@ func UploadFile(ctx context.Context, path string) (string, error) {
 	}
 	defer file.Close()
 
-	// Check that file is a zip file
-	buff := make([]byte, 512)
-	_, err = file.Read(buff)
-	if err != nil {
-		return "", fmt.Errorf("failed to read file: %w", err)
-	}
-	fileType := http.DetectContentType(buff)
-	if fileType != "application/zip" {
-		return "", fmt.Errorf("file is not a zip file")
-	}
-
-	// Reset the file pointer
-	file.Seek(0, io.SeekStart)
-
 	// Get the upload URL
-	request, err := http.NewRequestWithContext(ctx, "POST", "https://dreambooth-api-experimental.replicate.com/v1/upload/data.zip", nil)
+	filename := filepath.Base(path)
+	request, err := http.NewRequestWithContext(ctx, "POST", fmt.Sprintf("https://dreambooth-api-experimental.replicate.com/v1/upload/%s", filename), nil)
 	if err != nil {
 		return "", fmt.Errorf("failed to create upload request: %w", err)
 	}
@@ -71,7 +59,18 @@ func UploadFile(ctx context.Context, path string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("failed to create file upload request: %w", err)
 	}
-	request.Header.Set("Content-Type", "application/zip")
+
+	// Detect the content type
+	buff := make([]byte, 512)
+	_, err = file.Read(buff)
+	if err != nil {
+		return "", fmt.Errorf("failed to read file: %w", err)
+	}
+	contentType := http.DetectContentType(buff)
+	request.Header.Set("Content-Type", contentType)
+
+	// Reset the file pointer
+	file.Seek(0, io.SeekStart)
 
 	request.Body = file
 
