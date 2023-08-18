@@ -32,7 +32,7 @@ func DownloadPrediction(ctx context.Context, prediction replicate.Prediction, di
 		return fmt.Errorf("directory is empty")
 	}
 
-	err := os.MkdirAll(dir, 0755)
+	err := os.MkdirAll(dir, 0o755)
 	if err != nil {
 		return fmt.Errorf("failed to create directory: %w", err)
 	}
@@ -87,5 +87,5 @@ func DownloadPrediction(ctx context.Context, prediction replicate.Prediction, di
 		return fmt.Errorf("failed to marshal prediction output: %w", err)
 	}
 
-	return os.WriteFile(filepath.Join(dir, "output.json"), bytes, 0644)
+	return os.WriteFile(filepath.Join(dir, "output.json"), bytes, 0o644)
 }
