@@ -18,7 +18,10 @@ jobs:
           go-version-file: "go.mod"
 
       - name: Build
-        run: go build -v ./...
+        run: make
 
       - name: Test
-        run: go test -v ./...
+        run: make test
+
+      - name: Lint
+        run: make lint
