@@ -127,7 +127,7 @@ var CreateCmd = &cobra.Command{
 					progress := pred.Progress()
 					if progress != nil {
 						bar.ChangeMax(progress.Total)
-						bar.Set(progress.Current)
+						_ = bar.Set(progress.Current)
 					}
 
 					if pred.Status.Terminated() {
