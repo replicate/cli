@@ -88,7 +88,10 @@ var CreateCmd = &cobra.Command{
 		shouldWait := cmd.Flags().Changed("wait") || !cmd.Flags().Changed("no-wait")
 		if cmd.Flags().Changed("json") || !util.IsTTY() {
 			if shouldWait {
-				client.Wait(ctx, prediction)
+				err = client.Wait(ctx, prediction)
+				if err != nil {
+					return fmt.Errorf("failed to wait for prediction: %w", err)
+				}
 			}
 
 			b, err := json.Marshal(prediction)
