@@ -42,11 +42,9 @@ clean:
 
 .PHONY: test
 test:
-	$(GO) get gotest.tools/gotestsum
-	$(GO) run gotest.tools/gotestsum -- -timeout 1200s -parallel 5 ./...
+	$(GO) test -v ./...
 
 .PHONY: lint
 lint:
-	$(GO) get github.com/golangci/golangci-lint/cmd/golangci-lint
 	$(GO) run github.com/golangci/golangci-lint/cmd/golangci-lint run ./...
 
