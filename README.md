@@ -2,10 +2,6 @@
 
 ![demo](demo.gif)
 
-## Requirements
-
-- Go 1.20+
-
 ## Install
 
 If you're using macOS, you can install the Replicate CLI using Homebrew:
@@ -15,7 +11,8 @@ brew tap replicate/tap
 brew install replicate
 ```
 
-Or you can build from source and install it with these commands:
+Or you can build from source and install it with these commands
+(requires Go 1.20 or later):
 
 ```console
 make
