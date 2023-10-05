@@ -93,13 +93,13 @@ func coerceType(input string, schema *openapi3.Schema) (interface{}, error) {
 
 	switch schema.Type {
 	case "integer":
-		return strconv.Atoi(input)
+		return convertToInt(input)
 	case "number":
-		return strconv.ParseFloat(input, 64)
+		return convertToFloat(input)
 	case "boolean":
-		return strconv.ParseBool(input)
+		return convertToBool(input)
 	case "string":
-		return input, nil
+		return convertToString(input)
 	case "array":
 		var value []interface{}
 		err := json.Unmarshal([]byte(input), &value)
@@ -119,6 +119,38 @@ func coerceType(input string, schema *openapi3.Schema) (interface{}, error) {
 
 		return value, err
 	default:
+		// If the property has a default value, attempt to convert to that type
+		switch schema.Default.(type) {
+		case int:
+			return convertToInt(input)
+		case float64:
+			return convertToFloat(input)
+		case bool:
+			return convertToBool(input)
+		case string:
+			return convertToString(input)
+		}
+
 		return nil, fmt.Errorf("unknown type %s", schema.Type)
 	}
+}
+
+// convertToString is a no-op
+func convertToString(input string) (string, error) {
+	return input, nil
+}
+
+// convertToInt converts a string to an int
+func convertToInt(input string) (int, error) {
+	return strconv.Atoi(input)
+}
+
+// convertToFloat converts a string to a float
+func convertToFloat(input string) (float64, error) {
+	return strconv.ParseFloat(input, 64)
+}
+
+// convertToBool converts a string to a bool
+func convertToBool(input string) (bool, error) {
+	return strconv.ParseBool(input)
 }
