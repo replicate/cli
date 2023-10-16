@@ -90,7 +90,12 @@ $ replicate train --destination mattt/sdxl-dreambooth --web \
 # opens the training in browser
 ```
 
-> See [our blog post about fine-tuning with SDXL](https://replicate.com/blog/fine-tune-sdxl).
+> [!NOTE]
+> Use the `@` prefix to upload a file from your local filesystem.
+> It works like curl's `--data-binary` option.
+
+For more information,
+see [our blog post about fine-tuning with SDXL](https://replicate.com/blog/fine-tune-sdxl).
 
 ### View a model's inputs and outputs
 
