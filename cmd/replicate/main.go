@@ -6,6 +6,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/replicate/cli/internal/cmd"
+	"github.com/replicate/cli/internal/cmd/hardware"
 	"github.com/replicate/cli/internal/cmd/model"
 	"github.com/replicate/cli/internal/cmd/prediction"
 	"github.com/replicate/cli/internal/cmd/training"
@@ -35,6 +36,7 @@ func init() {
 		model.RootCmd,
 		prediction.RootCmd,
 		training.RootCmd,
+		hardware.RootCmd,
 	} {
 		rootCmd.AddCommand(cmd)
 		cmd.GroupID = "core"

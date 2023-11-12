@@ -12,7 +12,7 @@ import (
 )
 
 var showCmd = &cobra.Command{
-	Use:     "show",
+	Use:     "show <owner/model[:version]> [flags]",
 	Short:   "Show a model",
 	Args:    cobra.ExactArgs(1),
 	Aliases: []string{"view"},

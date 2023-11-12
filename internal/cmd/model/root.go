@@ -18,6 +18,7 @@ func init() {
 	for _, cmd := range []*cobra.Command{
 		showCmd,
 		schemaCmd,
+		createCmd,
 	} {
 		RootCmd.AddCommand(cmd)
 		cmd.GroupID = "subcommand"
