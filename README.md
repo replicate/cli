@@ -78,6 +78,16 @@ $ replicate run stability-ai/sdxl \
 # opens prediction in browser (https://replicate.com/p/jpgp263bdekvxileu2ppsy46v4)
 ```
 
+### Create a model
+
+Create a new model on Replicate.
+
+```console
+$ replicate model create yourname/model --private --hardware gpu-a40-small
+```
+
+After creating your model, you can [fine-tune an existing model](https://replicate.com/docs/fine-tuning) or [build and push a custom model using Cog](https://replicate.com/docs/guides/push-a-model).
+
 ### Fine-tune a model
 
 Fine-tune [SDXL] with your own images:
