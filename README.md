@@ -86,6 +86,12 @@ Create a new model on Replicate.
 $ replicate model create yourname/model --private --hardware gpu-a40-small
 ```
 
+To list available hardware types:
+
+```console
+$ replicate hardware list
+```
+
 After creating your model, you can [fine-tune an existing model](https://replicate.com/docs/fine-tuning) or [build and push a custom model using Cog](https://replicate.com/docs/guides/push-a-model).
 
 ### Fine-tune a model
