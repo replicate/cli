@@ -68,12 +68,39 @@ func init() {
 }
 
 // Parse the prediction id from a url, or return the prediction id if it's not a url
-func parsePredictionId(predictionish string) string {
-	if strings.HasPrefix(predictionish, "http") {
-		splitUrl := strings.Split(predictionish, "/")
-		return splitUrl[len(splitUrl)-1]
-	}
-	return predictionish
+func parsePredictionId(predictionish string) (string, error) {
+    // Case 1: A prediction ID, which is a base32-encoded string
+    if !strings.Contains(predictionish, "/") {
+        return predictionish, nil
+    }
+
+    // Case 2: A URL in the form https://replicate.com/p/{id}
+    if strings.HasPrefix(predictionish, "replicate.com/p/") || strings.HasPrefix(predictionish, "https://replicate.com/p/") {
+        splitUrl := strings.Split(predictionish, "/")
+        return splitUrl[len(splitUrl)-1], nil
+    }
+
+    // Case 3: A URL in the form https://api.replicate.com/v1/predictions/{id}
+    if strings.HasPrefix(predictionish, "api.replicate.com/v1/predictions/") || strings.HasPrefix(predictionish, "https://api.replicate.com/v1/predictions/") {
+        splitUrl := strings.Split(predictionish, "/")
+        return splitUrl[len(splitUrl)-1], nil
+    }
+    
+    // Case 4: A URL in the form "https://replicate.com/*?prediction={id}"
+     if strings.Contains(predictionish, "replicate.com") || strings.Contains(predictionish, "https://replicate.com") {
+         parsedUrl, err := url.Parse(predictionish)
+         if err != nil {
+              return "", fmt.Errorf("failed to parse URL: %w", err)
+         }
+         predictionId := parsedUrl.Query().Get("prediction")
+         if predictionId == "" {
+             return "", fmt.Errorf("no prediction ID found in URL")
+         }
+         return predictionId, nil
+    }
+    
+    // If none of the above cases match, return an error
+    return "", fmt.Errorf("invalid prediction ID or URL format")
 }
 
 func handleNodeTemplate(prediction *replicate.Prediction, model string, outputClonePath string) error {
