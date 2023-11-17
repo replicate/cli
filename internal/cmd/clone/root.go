@@ -41,13 +41,23 @@ var RootCmd = &cobra.Command{
 		if prediction == nil || err != nil {
 			fmt.Println(fmt.Errorf("failed to get prediction: %w", err))
 		}
-		fullModelString := fmt.Sprintf("%s:%s", prediction.Model, prediction.Version)
+
+		var fullModelString string
+		if prediction != nil {
+			fullModelString = fmt.Sprintf("%s:%s", prediction.Model, prediction.Version)
+		}
 
 		if template == "node" || template == "" {
-			handleNodeTemplate(prediction, fullModelString, outputClonePath)
+			err := handleNodeTemplate(prediction, fullModelString, outputClonePath)
+			if err != nil {
+				fmt.Println(fmt.Errorf("failed to handle node template: %w", err))
+			}
 		}
 		if template == "python" {
-			handlePythonTemplate(prediction, fullModelString, outputClonePath)
+			err = handlePythonTemplate(prediction, fullModelString, outputClonePath)
+			if err != nil {
+				fmt.Println(fmt.Errorf("failed to handle python template: %w", err))
+			}
 		}
 	},
 }
@@ -95,9 +105,9 @@ func handleNodeTemplate(prediction *replicate.Prediction, model string, outputCl
 	inputs, _ := json.Marshal(prediction.Input)
 	replacedData = strings.ReplaceAll(replacedData, "{{INPUTS}}", string(inputs))
 
-	// Write the populated tempalte to to outputClonePath/prediction.py
+	// Write the populated template to to outputClonePath/prediction.py
 	fmt.Println("Writing new prediction.py...")
-	err = os.WriteFile(filepath.Join(outputClonePath, "prediction.py"), []byte(replacedData), 0644)
+	err = os.WriteFile(filepath.Join(outputClonePath, "prediction.py"), []byte(replacedData), 0o644)
 	if err != nil {
 		return err
 	}
@@ -151,9 +161,9 @@ func handlePythonTemplate(prediction *replicate.Prediction, model string, output
 	inputs, _ := json.Marshal(prediction.Input)
 	replacedData = strings.ReplaceAll(replacedData, "{{INPUTS}}", string(inputs))
 
-	// Write the populated tempalte to to outputClonePath/prediction.py
+	// Write the populated template to to outputClonePath/prediction.py
 	fmt.Println("Writing new prediction.py...")
-	err = os.WriteFile(filepath.Join(outputClonePath, "prediction.py"), []byte(replacedData), 0644)
+	err = os.WriteFile(filepath.Join(outputClonePath, "prediction.py"), []byte(replacedData), 0o644)
 	if err != nil {
 		return err
 	}
