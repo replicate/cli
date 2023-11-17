@@ -6,7 +6,6 @@ import (
 	"net/url"
 	"os"
 	"os/exec"
-	"path/filepath"
 	"strings"
 
 	"github.com/replicate/replicate-go"
@@ -103,27 +102,38 @@ func parsePredictionId(predictionish string) (string, error) {
 	return "", fmt.Errorf("invalid prediction ID or URL format")
 }
 
-func handleNodeTemplate(cmd *cobra.Command, prediction *replicate.Prediction, outputClonePath string) error {
-	commands := []string{
-		fmt.Sprintf("git clone https://github.com/replicate/node-starter.git %s", outputClonePath),
-		fmt.Sprintf("cd %s && npm install", outputClonePath),
-		fmt.Sprintf(`cd %s && echo 'REPLICATE_API_TOKEN="%s"' >> .env`, outputClonePath, os.Getenv("REPLICATE_API_TOKEN")),
+func shellCommand(c *cobra.Command, command string) error {
+	cmd := exec.CommandContext(c.Context(), "/bin/sh", "-c", command)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	err := cmd.Run()
+	if err != nil {
+		return fmt.Errorf("failed to run command: %w", err)
 	}
+	return nil
+}
 
+func handleNodeTemplate(cmd *cobra.Command, prediction *replicate.Prediction, outputClonePath string) error {
 	fmt.Println("Cloning starter repo, and installing dependencies...")
 
-	for _, command := range commands {
-		cmd := exec.CommandContext(cmd.Context(), "/bin/sh", "-c", command)
-		cmd.Stdout = os.Stdout
-		cmd.Stderr = os.Stderr
-		err := cmd.Run()
-		if err != nil {
-			return fmt.Errorf("failed to run command: %w", err)
-		}
+	// 1. Clone the starter repo
+	shellCommand(cmd, fmt.Sprintf("git clone https://github.com/replicate/node-starter.git %s", outputClonePath))
+
+	// 2. Set chdir to the output path
+	err := os.Chdir(outputClonePath)
+	if err != nil {
+		fmt.Println(fmt.Errorf("failed to change directory: %w", err))
+		os.Exit(1)
 	}
 
+	// 3. Install dependencies
+	shellCommand(cmd, "npm install")
+
+	// 4. Set the REPLICATE_API_TOKEN env var
+	shellCommand(cmd, fmt.Sprintf(`echo 'REPLICATE_API_TOKEN="%s"' >> .env`, os.Getenv("REPLICATE_API_TOKEN")))
+
 	// Open the template file
-	templateData, err := os.ReadFile(filepath.Join(outputClonePath, "index.js.template"))
+	templateData, err := os.ReadFile("index.js.template")
 	if err != nil {
 		return fmt.Errorf("failed to read template file: %w", err)
 	}
@@ -135,84 +145,63 @@ func handleNodeTemplate(cmd *cobra.Command, prediction *replicate.Prediction, ou
 	inputs, _ := json.Marshal(prediction.Input)
 	replacedData = strings.ReplaceAll(replacedData, "{{INPUTS}}", string(inputs))
 
-	// Write the populated template to to outputClonePath/index.js
+	// 5. Write the populated template to to outputClonePath/index.js
 	fmt.Println("Writing new index.js...")
-	err = os.WriteFile(filepath.Join(outputClonePath, "index.js"), []byte(replacedData), 0o644)
+	err = os.WriteFile("index.js", []byte(replacedData), 0o644)
 	if err != nil {
 		return err
 	}
 
-	// Run the example prediction
+	// 6. Run the example prediction
 	fmt.Println("Running example prediction...")
-	commands = []string{
-		fmt.Sprintf("cd %s && node index.js", outputClonePath),
-	}
-	for _, command := range commands {
-		cmd := exec.Command("bash", "-c", command)
-		cmd.Stdout = os.Stdout
-		cmd.Stderr = os.Stderr
-		err := cmd.Run()
-		if err != nil {
-			return err
-		}
-	}
+	shellCommand(cmd, "node index.js")
 
 	return nil
 }
 
 func handlePythonTemplate(cmd *cobra.Command, prediction *replicate.Prediction, outputClonePath string) error {
-	commands := []string{
-		fmt.Sprintf("git clone git@github.com:replicate/python-starter.git %s", outputClonePath),
-		fmt.Sprintf("cd %s && virtualenv .venv", outputClonePath),
-		fmt.Sprintf("cd %s && .venv/bin/pip install -r requirements.txt", outputClonePath),
-		fmt.Sprintf(`cd %s && echo 'REPLICATE_API_TOKEN="%s"' >> .env`, outputClonePath, os.Getenv("REPLICATE_API_TOKEN")),
+	// 1. Clone the starter repo
+	shellCommand(cmd, fmt.Sprintf("git clone git@github.com:replicate/python-starter.git %s", outputClonePath))
+
+	// 2. Set chdir to the output path
+	err := os.Chdir(outputClonePath)
+	if err != nil {
+		fmt.Println(fmt.Errorf("failed to change directory: %w", err))
+		os.Exit(1)
 	}
+
+	// 3. Create virtualenv
+	shellCommand(cmd, "virtualenv .venv")
+
+	// 4. Install dependencies
+	shellCommand(cmd, ".venv/bin/pip install -r requirements.txt")
+
+	// 5. Set the REPLICATE_API_TOKEN env var
+	shellCommand(cmd, fmt.Sprintf(`echo 'REPLICATE_API_TOKEN="%s"' >> .env`, os.Getenv("REPLICATE_API_TOKEN")))
 
 	fmt.Println("Cloning starter repo, and installing dependencies...")
 
-	for _, command := range commands {
-		cmd := exec.CommandContext(cmd.Context(), "bash", "-c", command)
-		cmd.Stdout = os.Stdout
-		cmd.Stderr = os.Stderr
-		err := cmd.Run()
-		if err != nil {
-			return fmt.Errorf("failed to run command: %w", err)
-		}
-	}
-
 	// Open the template file
-	templateData, err := os.ReadFile(filepath.Join(outputClonePath, "prediction.py.template"))
+	templateData, err := os.ReadFile("prediction.py.template")
 	if err != nil {
 		return fmt.Errorf("failed to read template file: %w", err)
 	}
 	fullModelString := fmt.Sprintf("%s:%s", prediction.Model, prediction.Version)
 
-	// Perform string replacement on the template file.
 	replacedData := strings.ReplaceAll(string(templateData), "{{MODEL_STRING}}", fullModelString)
 	inputs, _ := json.Marshal(prediction.Input)
 	replacedData = strings.ReplaceAll(replacedData, "{{INPUTS}}", string(inputs))
 
-	// Write the populated template to to outputClonePath/prediction.py
+	// 6. Write the populated template to to outputClonePath/prediction.py
 	fmt.Println("Writing new prediction.py...")
-	err = os.WriteFile(filepath.Join(outputClonePath, "prediction.py"), []byte(replacedData), 0o644)
+	err = os.WriteFile("prediction.py", []byte(replacedData), 0o644)
 	if err != nil {
 		return err
 	}
 
-	// Run the example prediction
+	// 7. Run the example prediction
 	fmt.Println("Running example prediction...")
-	commands = []string{
-		fmt.Sprintf("cd %s && .venv/bin/python prediction.py", outputClonePath),
-	}
-	for _, command := range commands {
-		cmd := exec.Command("bash", "-c", command)
-		cmd.Stdout = os.Stdout
-		cmd.Stderr = os.Stderr
-		err := cmd.Run()
-		if err != nil {
-			return err
-		}
-	}
+	shellCommand(cmd, ".venv/bin/python prediction.py")
 
 	return nil
 }
