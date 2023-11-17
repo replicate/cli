@@ -24,8 +24,15 @@ var RootCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		predictionish := args[0]
-		outputClonePath := args[1]
+		predictionId := parsePredictionId(args[0])
+
+		var outputClonePath string
+		if len(args) == 2 {
+			outputClonePath = args[1]
+		} else {
+			outputClonePath = predictionId
+		}
+
 		template, _ := cmd.Flags().GetString("template")
 
 		client, err := replicate.NewClient(replicate.WithTokenFromEnv())
@@ -34,8 +41,6 @@ var RootCmd = &cobra.Command{
 		}
 
 		ctx := cmd.Context()
-
-		predictionId := parsePredictionId(predictionish)
 
 		prediction, err := client.GetPrediction(ctx, predictionId)
 		if prediction == nil || err != nil {
