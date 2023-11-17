@@ -52,16 +52,11 @@ var RootCmd = &cobra.Command{
 			fmt.Println(fmt.Errorf("failed to get prediction: %w", err))
 		}
 
-		var fullModelString string
-		if prediction != nil {
-			fullModelString = fmt.Sprintf("%s:%s", prediction.Model, prediction.Version)
-		}
-
 		switch template {
 		case "node", "":
-			return handleNodeTemplate(cmd, prediction, fullModelString, outputClonePath)
+			return handleNodeTemplate(cmd, prediction, outputClonePath)
 		case "python":
-			return handlePythonTemplate(cmd, prediction, fullModelString, outputClonePath)
+			return handlePythonTemplate(cmd, prediction, outputClonePath)
 		default:
 			return fmt.Errorf("unsupported template: %s, expected one of: node, python", template)
 		}
@@ -108,7 +103,7 @@ func parsePredictionId(predictionish string) (string, error) {
 	return "", fmt.Errorf("invalid prediction ID or URL format")
 }
 
-func handleNodeTemplate(cmd *cobra.Command, prediction *replicate.Prediction, model string, outputClonePath string) error {
+func handleNodeTemplate(cmd *cobra.Command, prediction *replicate.Prediction, outputClonePath string) error {
 	commands := []string{
 		fmt.Sprintf("git clone https://github.com/replicate/node-starter.git %s", outputClonePath),
 		fmt.Sprintf("cd %s && npm install", outputClonePath),
@@ -128,19 +123,21 @@ func handleNodeTemplate(cmd *cobra.Command, prediction *replicate.Prediction, mo
 	}
 
 	// Open the template file
-	templateData, err := os.ReadFile(filepath.Join(outputClonePath, "prediction.py.template"))
+	templateData, err := os.ReadFile(filepath.Join(outputClonePath, "index.js.template"))
 	if err != nil {
 		return fmt.Errorf("failed to read template file: %w", err)
 	}
 
+	fullModelString := fmt.Sprintf("%s:%s", prediction.Model, prediction.Version)
+
 	// Perform string replacement on the template file.
-	replacedData := strings.ReplaceAll(string(templateData), "{{MODEL_STRING}}", model)
+	replacedData := strings.ReplaceAll(string(templateData), "{{MODEL_STRING}}", fullModelString)
 	inputs, _ := json.Marshal(prediction.Input)
 	replacedData = strings.ReplaceAll(replacedData, "{{INPUTS}}", string(inputs))
 
-	// Write the populated template to to outputClonePath/prediction.py
-	fmt.Println("Writing new prediction.py...")
-	err = os.WriteFile(filepath.Join(outputClonePath, "prediction.py"), []byte(replacedData), 0o644)
+	// Write the populated template to to outputClonePath/index.js
+	fmt.Println("Writing new index.js...")
+	err = os.WriteFile(filepath.Join(outputClonePath, "index.js"), []byte(replacedData), 0o644)
 	if err != nil {
 		return err
 	}
@@ -148,7 +145,7 @@ func handleNodeTemplate(cmd *cobra.Command, prediction *replicate.Prediction, mo
 	// Run the example prediction
 	fmt.Println("Running example prediction...")
 	commands = []string{
-		fmt.Sprintf("cd %s && node prediction.py", outputClonePath),
+		fmt.Sprintf("cd %s && node index.js", outputClonePath),
 	}
 	for _, command := range commands {
 		cmd := exec.Command("bash", "-c", command)
@@ -163,7 +160,7 @@ func handleNodeTemplate(cmd *cobra.Command, prediction *replicate.Prediction, mo
 	return nil
 }
 
-func handlePythonTemplate(cmd *cobra.Command, prediction *replicate.Prediction, model string, outputClonePath string) error {
+func handlePythonTemplate(cmd *cobra.Command, prediction *replicate.Prediction, outputClonePath string) error {
 	commands := []string{
 		fmt.Sprintf("git clone git@github.com:replicate/python-starter.git %s", outputClonePath),
 		fmt.Sprintf("cd %s && virtualenv .venv", outputClonePath),
@@ -188,9 +185,10 @@ func handlePythonTemplate(cmd *cobra.Command, prediction *replicate.Prediction, 
 	if err != nil {
 		return fmt.Errorf("failed to read template file: %w", err)
 	}
+	fullModelString := fmt.Sprintf("%s:%s", prediction.Model, prediction.Version)
 
 	// Perform string replacement on the template file.
-	replacedData := strings.ReplaceAll(string(templateData), "{{MODEL_STRING}}", model)
+	replacedData := strings.ReplaceAll(string(templateData), "{{MODEL_STRING}}", fullModelString)
 	inputs, _ := json.Marshal(prediction.Input)
 	replacedData = strings.ReplaceAll(replacedData, "{{INPUTS}}", string(inputs))
 
