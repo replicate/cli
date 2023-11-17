@@ -52,17 +52,13 @@ var RootCmd = &cobra.Command{
 			fullModelString = fmt.Sprintf("%s:%s", prediction.Model, prediction.Version)
 		}
 
-		if template == "node" || template == "" {
-			err := handleNodeTemplate(prediction, fullModelString, outputClonePath)
-			if err != nil {
-				fmt.Println(fmt.Errorf("failed to handle node template: %w", err))
-			}
-		}
-		if template == "python" {
-			err = handlePythonTemplate(prediction, fullModelString, outputClonePath)
-			if err != nil {
-				fmt.Println(fmt.Errorf("failed to handle python template: %w", err))
-			}
+		switch template {
+		case "node", "":
+			return handleNodeTemplate(prediction, fullModelString, outputClonePath)
+		case "python":
+			return handlePythonTemplate(prediction, fullModelString, outputClonePath)
+		default:
+			return fmt.Errorf("unsupported template: %s, expected one of: node, python", template)
 		}
 	},
 }
