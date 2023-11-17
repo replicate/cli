@@ -3,6 +3,7 @@ package clone
 import (
 	"encoding/json"
 	"fmt"
+	"net/url"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -15,7 +16,7 @@ import (
 var RootCmd = &cobra.Command{
 	Use:   "clone <prediction-ID-or-URL> [<directory>] [--template=<template>]",
 	Short: "Setup a new local development environment from a prediction",
-	Args:  cobra.RangeArgs(1, 2),,
+	Args:  cobra.RangeArgs(1, 2),
 	RunE: func(cmd *cobra.Command, args []string) error {
 
 		// Check whether REPLICATE_API_TOKEN env var is set, if not exit with an error message
@@ -24,7 +25,11 @@ var RootCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		predictionId := parsePredictionId(args[0])
+		predictionId, err := parsePredictionId(args[0])
+		if err != nil {
+			fmt.Println(fmt.Errorf("failed to parse prediction id: %w", err))
+			os.Exit(1)
+		}
 
 		var outputClonePath string
 		if len(args) == 2 {
@@ -54,9 +59,9 @@ var RootCmd = &cobra.Command{
 
 		switch template {
 		case "node", "":
-			return handleNodeTemplate(prediction, fullModelString, outputClonePath)
+			return handleNodeTemplate(cmd, prediction, fullModelString, outputClonePath)
 		case "python":
-			return handlePythonTemplate(prediction, fullModelString, outputClonePath)
+			return handlePythonTemplate(cmd, prediction, fullModelString, outputClonePath)
 		default:
 			return fmt.Errorf("unsupported template: %s, expected one of: node, python", template)
 		}
@@ -69,41 +74,41 @@ func init() {
 
 // Parse the prediction id from a url, or return the prediction id if it's not a url
 func parsePredictionId(predictionish string) (string, error) {
-    // Case 1: A prediction ID, which is a base32-encoded string
-    if !strings.Contains(predictionish, "/") {
-        return predictionish, nil
-    }
+	// Case 1: A prediction ID, which is a base32-encoded string
+	if !strings.Contains(predictionish, "/") {
+		return predictionish, nil
+	}
 
-    // Case 2: A URL in the form https://replicate.com/p/{id}
-    if strings.HasPrefix(predictionish, "replicate.com/p/") || strings.HasPrefix(predictionish, "https://replicate.com/p/") {
-        splitUrl := strings.Split(predictionish, "/")
-        return splitUrl[len(splitUrl)-1], nil
-    }
+	// Case 2: A URL in the form https://replicate.com/p/{id}
+	if strings.HasPrefix(predictionish, "replicate.com/p/") || strings.HasPrefix(predictionish, "https://replicate.com/p/") {
+		splitUrl := strings.Split(predictionish, "/")
+		return splitUrl[len(splitUrl)-1], nil
+	}
 
-    // Case 3: A URL in the form https://api.replicate.com/v1/predictions/{id}
-    if strings.HasPrefix(predictionish, "api.replicate.com/v1/predictions/") || strings.HasPrefix(predictionish, "https://api.replicate.com/v1/predictions/") {
-        splitUrl := strings.Split(predictionish, "/")
-        return splitUrl[len(splitUrl)-1], nil
-    }
-    
-    // Case 4: A URL in the form "https://replicate.com/*?prediction={id}"
-     if strings.Contains(predictionish, "replicate.com") || strings.Contains(predictionish, "https://replicate.com") {
-         parsedUrl, err := url.Parse(predictionish)
-         if err != nil {
-              return "", fmt.Errorf("failed to parse URL: %w", err)
-         }
-         predictionId := parsedUrl.Query().Get("prediction")
-         if predictionId == "" {
-             return "", fmt.Errorf("no prediction ID found in URL")
-         }
-         return predictionId, nil
-    }
-    
-    // If none of the above cases match, return an error
-    return "", fmt.Errorf("invalid prediction ID or URL format")
+	// Case 3: A URL in the form https://api.replicate.com/v1/predictions/{id}
+	if strings.HasPrefix(predictionish, "api.replicate.com/v1/predictions/") || strings.HasPrefix(predictionish, "https://api.replicate.com/v1/predictions/") {
+		splitUrl := strings.Split(predictionish, "/")
+		return splitUrl[len(splitUrl)-1], nil
+	}
+
+	// Case 4: A URL in the form "https://replicate.com/*?prediction={id}"
+	if strings.Contains(predictionish, "replicate.com") || strings.Contains(predictionish, "https://replicate.com") {
+		parsedUrl, err := url.Parse(predictionish)
+		if err != nil {
+			return "", fmt.Errorf("failed to parse URL: %w", err)
+		}
+		predictionId := parsedUrl.Query().Get("prediction")
+		if predictionId == "" {
+			return "", fmt.Errorf("no prediction ID found in URL")
+		}
+		return predictionId, nil
+	}
+
+	// If none of the above cases match, return an error
+	return "", fmt.Errorf("invalid prediction ID or URL format")
 }
 
-func handleNodeTemplate(prediction *replicate.Prediction, model string, outputClonePath string) error {
+func handleNodeTemplate(cmd *cobra.Command, prediction *replicate.Prediction, model string, outputClonePath string) error {
 	commands := []string{
 		fmt.Sprintf("git clone https://github.com/replicate/node-starter.git %s", outputClonePath),
 		fmt.Sprintf("cd %s && npm install", outputClonePath),
@@ -158,7 +163,7 @@ func handleNodeTemplate(prediction *replicate.Prediction, model string, outputCl
 	return nil
 }
 
-func handlePythonTemplate(prediction *replicate.Prediction, model string, outputClonePath string) error {
+func handlePythonTemplate(cmd *cobra.Command, prediction *replicate.Prediction, model string, outputClonePath string) error {
 	commands := []string{
 		fmt.Sprintf("git clone git@github.com:replicate/python-starter.git %s", outputClonePath),
 		fmt.Sprintf("cd %s && virtualenv .venv", outputClonePath),
@@ -169,7 +174,7 @@ func handlePythonTemplate(prediction *replicate.Prediction, model string, output
 	fmt.Println("Cloning starter repo, and installing dependencies...")
 
 	for _, command := range commands {
-		cmd := exec.Command("bash", "-c", command)
+		cmd := exec.CommandContext(cmd.Context(), "bash", "-c", command)
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
 		err := cmd.Run()
