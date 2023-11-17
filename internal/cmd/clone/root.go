@@ -82,7 +82,7 @@ func parsePredictionId(predictionish string) string {
 
 func handleNodeTemplate(prediction *replicate.Prediction, model string, outputClonePath string) error {
 	commands := []string{
-		fmt.Sprintf("git clone git@github.com:replicate/node-starter.git %s", outputClonePath),
+		fmt.Sprintf("git clone https://github.com/replicate/node-starter.git %s", outputClonePath),
 		fmt.Sprintf("cd %s && npm install", outputClonePath),
 		fmt.Sprintf(`cd %s && echo 'REPLICATE_API_TOKEN="%s"' >> .env`, outputClonePath, os.Getenv("REPLICATE_API_TOKEN")),
 	}
