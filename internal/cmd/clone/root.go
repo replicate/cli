@@ -13,7 +13,7 @@ import (
 )
 
 var RootCmd = &cobra.Command{
-	Use:   "clone [prediction ID or URL] [output path]",
+	Use:   "clone <prediction-ID-or-URL> [<directory>] [--template=<template>]",
 	Short: "Setup a new local development environment from a prediction",
 	Args:  cobra.ExactArgs(2),
 	Run: func(cmd *cobra.Command, args []string) {
