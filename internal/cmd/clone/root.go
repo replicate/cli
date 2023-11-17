@@ -16,7 +16,7 @@ var RootCmd = &cobra.Command{
 	Use:   "clone <prediction-ID-or-URL> [<directory>] [--template=<template>]",
 	Short: "Setup a new local development environment from a prediction",
 	Args:  cobra.RangeArgs(1, 2),,
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 
 		// Check whether REPLICATE_API_TOKEN env var is set, if not exit with an error message
 		if os.Getenv("REPLICATE_API_TOKEN") == "" {
