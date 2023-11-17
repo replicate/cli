@@ -90,7 +90,7 @@ func handleNodeTemplate(prediction *replicate.Prediction, model string, outputCl
 	fmt.Println("Cloning starter repo, and installing dependencies...")
 
 	for _, command := range commands {
-		cmd := exec.Command("bash", "-c", command)
+		cmd := exec.CommandContext(cmd.Context(), "/bin/sh", "-c", command)
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
 		err := cmd.Run()
