@@ -1,4 +1,4 @@
-package clone
+package init
 
 import (
 	"encoding/json"
@@ -13,8 +13,8 @@ import (
 )
 
 var RootCmd = &cobra.Command{
-	Use:   "clone <prediction-ID-or-URL> [<directory>] [--template=<template>]",
-	Short: "Setup a new local development environment from a prediction",
+	Use:   "init <prediction-ID-or-URL> [<directory>] [--template=<template>]",
+	Short: "Initialize a new local development environment from a prediction",
 	Args:  cobra.RangeArgs(1, 2),
 	RunE: func(cmd *cobra.Command, args []string) error {
 
