@@ -1,6 +1,7 @@
 package init
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/url"
@@ -53,9 +54,9 @@ var RootCmd = &cobra.Command{
 
 		switch template {
 		case "node", "":
-			return handleNodeTemplate(cmd, prediction, outputClonePath)
+			return handleNodeTemplate(ctx, prediction, outputClonePath)
 		case "python":
-			return handlePythonTemplate(cmd, prediction, outputClonePath)
+			return handlePythonTemplate(ctx, prediction, outputClonePath)
 		default:
 			return fmt.Errorf("unsupported template: %s, expected one of: node, python", template)
 		}
@@ -102,8 +103,8 @@ func parsePredictionId(predictionish string) (string, error) {
 	return "", fmt.Errorf("invalid prediction ID or URL format")
 }
 
-func shellCommand(c *cobra.Command, command string) error {
-	cmd := exec.CommandContext(c.Context(), "/bin/sh", "-c", command)
+func execCommand(ctx context.Context, command string) error {
+	cmd := exec.CommandContext(ctx, "/bin/sh", "-c", command)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	err := cmd.Run()
@@ -113,24 +114,29 @@ func shellCommand(c *cobra.Command, command string) error {
 	return nil
 }
 
-func handleNodeTemplate(cmd *cobra.Command, prediction *replicate.Prediction, outputClonePath string) error {
+func handleNodeTemplate(ctx context.Context, prediction *replicate.Prediction, outputClonePath string) error {
 	fmt.Println("Cloning starter repo, and installing dependencies...")
 
 	// 1. Clone the starter repo
-	shellCommand(cmd, fmt.Sprintf("git clone https://github.com/replicate/node-starter.git %s", outputClonePath))
+	if err := execCommand(ctx, fmt.Sprintf("git clone https://github.com/replicate/node-starter.git %s", outputClonePath)); err != nil {
+		return fmt.Errorf("failed to clone starter repo: %w", err)
+	}
 
 	// 2. Set chdir to the output path
-	err := os.Chdir(outputClonePath)
-	if err != nil {
+	if err := os.Chdir(outputClonePath); err != nil {
 		fmt.Println(fmt.Errorf("failed to change directory: %w", err))
 		os.Exit(1)
 	}
 
 	// 3. Install dependencies
-	shellCommand(cmd, "npm install")
+	if err := execCommand(ctx, "npm install"); err != nil {
+		return fmt.Errorf("failed to install dependencies: %w", err)
+	}
 
 	// 4. Set the REPLICATE_API_TOKEN env var
-	shellCommand(cmd, fmt.Sprintf(`echo 'REPLICATE_API_TOKEN="%s"' >> .env`, os.Getenv("REPLICATE_API_TOKEN")))
+	if err := execCommand(ctx, fmt.Sprintf(`echo 'REPLICATE_API_TOKEN="%s"' >> .env`, os.Getenv("REPLICATE_API_TOKEN"))); err != nil {
+		return fmt.Errorf("failed to write .env file: %w", err)
+	}
 
 	// Open the template file
 	templateData, err := os.ReadFile("index.js.template")
@@ -154,14 +160,18 @@ func handleNodeTemplate(cmd *cobra.Command, prediction *replicate.Prediction, ou
 
 	// 6. Run the example prediction
 	fmt.Println("Running example prediction...")
-	shellCommand(cmd, "node index.js")
+	if err := execCommand(ctx, "node index.js"); err != nil {
+		return fmt.Errorf("failed to run example prediction: %w", err)
+	}
 
 	return nil
 }
 
-func handlePythonTemplate(cmd *cobra.Command, prediction *replicate.Prediction, outputClonePath string) error {
+func handlePythonTemplate(ctx context.Context, prediction *replicate.Prediction, outputClonePath string) error {
 	// 1. Clone the starter repo
-	shellCommand(cmd, fmt.Sprintf("git clone git@github.com:replicate/python-starter.git %s", outputClonePath))
+	if err := execCommand(ctx, fmt.Sprintf("git clone git@github.com:replicate/python-starter.git %s", outputClonePath)); err != nil {
+		return fmt.Errorf("failed to clone starter repo: %w", err)
+	}
 
 	// 2. Set chdir to the output path
 	err := os.Chdir(outputClonePath)
@@ -171,13 +181,19 @@ func handlePythonTemplate(cmd *cobra.Command, prediction *replicate.Prediction, 
 	}
 
 	// 3. Create virtualenv
-	shellCommand(cmd, "virtualenv .venv")
+	if err := execCommand(ctx, "virtualenv .venv"); err != nil {
+		return fmt.Errorf("failed to create virtualenv: %w", err)
+	}
 
 	// 4. Install dependencies
-	shellCommand(cmd, ".venv/bin/pip install -r requirements.txt")
+	if err := execCommand(ctx, ".venv/bin/pip install -r requirements.txt"); err != nil {
+		return fmt.Errorf("failed to install dependencies: %w", err)
+	}
 
 	// 5. Set the REPLICATE_API_TOKEN env var
-	shellCommand(cmd, fmt.Sprintf(`echo 'REPLICATE_API_TOKEN="%s"' >> .env`, os.Getenv("REPLICATE_API_TOKEN")))
+	if err := execCommand(ctx, fmt.Sprintf(`echo 'REPLICATE_API_TOKEN="%s"' >> .env`, os.Getenv("REPLICATE_API_TOKEN"))); err != nil {
+		return fmt.Errorf("failed to write .env file: %w", err)
+	}
 
 	fmt.Println("Cloning starter repo, and installing dependencies...")
 
@@ -201,7 +217,9 @@ func handlePythonTemplate(cmd *cobra.Command, prediction *replicate.Prediction, 
 
 	// 7. Run the example prediction
 	fmt.Println("Running example prediction...")
-	shellCommand(cmd, ".venv/bin/python prediction.py")
+	if err := execCommand(ctx, ".venv/bin/python prediction.py"); err != nil {
+		return fmt.Errorf("failed to run example prediction: %w", err)
+	}
 
 	return nil
 }
