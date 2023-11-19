@@ -27,8 +27,7 @@ var RootCmd = &cobra.Command{
 
 		predictionId, err := parsePredictionId(args[0])
 		if err != nil {
-			fmt.Println(fmt.Errorf("failed to parse prediction id: %w", err))
-			os.Exit(1)
+			return fmt.Errorf("failed to parse prediction ID: %w", err)
 		}
 
 		var directory string
@@ -134,8 +133,7 @@ func handleNodeTemplate(ctx context.Context, prediction *replicate.Prediction, d
 
 	// 2. Set chdir to the output path
 	if err := os.Chdir(directory); err != nil {
-		fmt.Println(fmt.Errorf("failed to change directory: %w", err))
-		os.Exit(1)
+		return fmt.Errorf("failed to change directory: %w", err)
 	}
 
 	// 3. Install dependencies
@@ -188,8 +186,7 @@ func handlePythonTemplate(ctx context.Context, prediction *replicate.Prediction,
 	// 2. Set chdir to the output path
 	err := os.Chdir(directory)
 	if err != nil {
-		fmt.Println(fmt.Errorf("failed to change directory: %w", err))
-		os.Exit(1)
+		return fmt.Errorf("failed to change directory: %w", err)
 	}
 
 	// 3. Create virtualenv
