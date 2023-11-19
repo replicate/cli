@@ -18,16 +18,25 @@ var RootCmd = &cobra.Command{
 	Short: "Initialize a new local development environment from a prediction",
 	Args:  cobra.RangeArgs(1, 2),
 	RunE: func(cmd *cobra.Command, args []string) error {
+		ctx := cmd.Context()
 
-		// Check whether REPLICATE_API_TOKEN env var is set, if not exit with an error message
-		if os.Getenv("REPLICATE_API_TOKEN") == "" {
-			fmt.Println("REPLICATE_API_TOKEN environment variable not set. Please set it to your Replicate API token.")
-			os.Exit(1)
+		apiToken := os.Getenv("REPLICATE_API_TOKEN")
+		if apiToken == "" {
+			return fmt.Errorf("REPLICATE_API_TOKEN environment variable not set. Please set this to your Replicate API token")
+		}
+
+		client, err := replicate.NewClient(replicate.WithToken(apiToken))
+		if err != nil {
+			fmt.Println(fmt.Errorf("failed to create client: %w", err))
 		}
 
 		predictionId, err := parsePredictionId(args[0])
 		if err != nil {
 			return fmt.Errorf("failed to parse prediction ID: %w", err)
+		}
+		prediction, err := client.GetPrediction(ctx, predictionId)
+		if prediction == nil || err != nil {
+			fmt.Println(fmt.Errorf("failed to get prediction: %w", err))
 		}
 
 		var directory string
@@ -39,23 +48,11 @@ var RootCmd = &cobra.Command{
 
 		template, _ := cmd.Flags().GetString("template")
 
-		client, err := replicate.NewClient(replicate.WithTokenFromEnv())
-		if err != nil {
-			fmt.Println(fmt.Errorf("failed to create client: %w", err))
-		}
-
-		ctx := cmd.Context()
-
-		prediction, err := client.GetPrediction(ctx, predictionId)
-		if prediction == nil || err != nil {
-			fmt.Println(fmt.Errorf("failed to get prediction: %w", err))
-		}
-
 		switch template {
 		case "node", "nodejs", "js", "":
-			return handleNodeTemplate(ctx, prediction, directory)
+			return handleNodeTemplate(ctx, prediction, directory, apiToken)
 		case "python":
-			return handlePythonTemplate(ctx, prediction, directory)
+			return handlePythonTemplate(ctx, prediction, directory, apiToken)
 		default:
 			return fmt.Errorf("unsupported template: %s, expected one of: node, python", template)
 		}
@@ -123,7 +120,7 @@ func execCommand(ctx context.Context, command string) error {
 	return nil
 }
 
-func handleNodeTemplate(ctx context.Context, prediction *replicate.Prediction, directory string) error {
+func handleNodeTemplate(ctx context.Context, prediction *replicate.Prediction, directory string, apiToken string) error {
 	fmt.Println("Cloning starter repo and installing dependencies...")
 
 	// 1. Clone the starter repo
@@ -142,7 +139,7 @@ func handleNodeTemplate(ctx context.Context, prediction *replicate.Prediction, d
 	}
 
 	// 4. Set the REPLICATE_API_TOKEN env var
-	if err := execCommand(ctx, fmt.Sprintf(`echo 'REPLICATE_API_TOKEN="%s"' >> .env`, os.Getenv("REPLICATE_API_TOKEN"))); err != nil {
+	if err := execCommand(ctx, fmt.Sprintf(`echo 'REPLICATE_API_TOKEN="%s"' >> .env`, apiToken)); err != nil {
 		return fmt.Errorf("failed to write .env file: %w", err)
 	}
 
@@ -175,7 +172,7 @@ func handleNodeTemplate(ctx context.Context, prediction *replicate.Prediction, d
 	return nil
 }
 
-func handlePythonTemplate(ctx context.Context, prediction *replicate.Prediction, directory string) error {
+func handlePythonTemplate(ctx context.Context, prediction *replicate.Prediction, directory string, apiToken string) error {
 	fmt.Println("Cloning starter repo and installing dependencies...")
 
 	// 1. Clone the starter repo
@@ -200,7 +197,7 @@ func handlePythonTemplate(ctx context.Context, prediction *replicate.Prediction,
 	}
 
 	// 5. Set the REPLICATE_API_TOKEN env var
-	if err := execCommand(ctx, fmt.Sprintf(`echo 'REPLICATE_API_TOKEN="%s"' >> .env`, os.Getenv("REPLICATE_API_TOKEN"))); err != nil {
+	if err := execCommand(ctx, fmt.Sprintf(`echo 'REPLICATE_API_TOKEN="%s"' >> .env`, apiToken)); err != nil {
 		return fmt.Errorf("failed to write .env file: %w", err)
 	}
 
