@@ -31,11 +31,11 @@ var RootCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		var outputClonePath string
+		var directory string
 		if len(args) == 2 {
-			outputClonePath = args[1]
+			directory = args[1]
 		} else {
-			outputClonePath = predictionId
+			directory = predictionId
 		}
 
 		template, _ := cmd.Flags().GetString("template")
@@ -54,9 +54,9 @@ var RootCmd = &cobra.Command{
 
 		switch template {
 		case "node", "":
-			return handleNodeTemplate(ctx, prediction, outputClonePath)
+			return handleNodeTemplate(ctx, prediction, directory)
 		case "python":
-			return handlePythonTemplate(ctx, prediction, outputClonePath)
+			return handlePythonTemplate(ctx, prediction, directory)
 		default:
 			return fmt.Errorf("unsupported template: %s, expected one of: node, python", template)
 		}
@@ -68,15 +68,15 @@ func init() {
 }
 
 // Parse the prediction id from a url, or return the prediction id if it's not a url
-func parsePredictionId(predictionish string) (string, error) {
-	// Case 1: A prediction ID, which is a base32-encoded string
-	if !strings.Contains(predictionish, "/") {
-		return predictionish, nil
+func parsePredictionId(value string) (string, error) {
+	// Case 1: A prediction ID
+	if !strings.Contains(value, "/") {
+		return value, nil
 	}
 
 	// Case 2: A URL in the form https://replicate.com/p/{id}
-	if strings.HasPrefix(predictionish, "replicate.com/p/") || strings.HasPrefix(predictionish, "https://replicate.com/p/") {
-		splitUrl := strings.Split(predictionish, "/")
+	if strings.HasPrefix(value, "replicate.com/p/") || strings.HasPrefix(value, "https://replicate.com/p/") {
+		splitUrl := strings.Split(value, "/")
 		if len(splitUrl) == 0 {
 			return "", fmt.Errorf("invalid URL format")
 		}
@@ -84,8 +84,8 @@ func parsePredictionId(predictionish string) (string, error) {
 	}
 
 	// Case 3: A URL in the form https://api.replicate.com/v1/predictions/{id}
-	if strings.HasPrefix(predictionish, "api.replicate.com/v1/predictions/") || strings.HasPrefix(predictionish, "https://api.replicate.com/v1/predictions/") {
-		splitUrl := strings.Split(predictionish, "/")
+	if strings.HasPrefix(value, "api.replicate.com/v1/predictions/") || strings.HasPrefix(value, "https://api.replicate.com/v1/predictions/") {
+		splitUrl := strings.Split(value, "/")
 		if len(splitUrl) == 0 {
 			return "", fmt.Errorf("invalid URL format")
 		}
@@ -93,8 +93,8 @@ func parsePredictionId(predictionish string) (string, error) {
 	}
 
 	// Case 4: A URL in the form "https://replicate.com/*?prediction={id}"
-	if strings.Contains(predictionish, "replicate.com") || strings.Contains(predictionish, "https://replicate.com") {
-		parsedUrl, err := url.Parse(predictionish)
+	if strings.Contains(value, "replicate.com") || strings.Contains(value, "https://replicate.com") {
+		parsedUrl, err := url.Parse(value)
 		if err != nil {
 			return "", fmt.Errorf("failed to parse URL: %w", err)
 		}
@@ -124,16 +124,16 @@ func execCommand(ctx context.Context, command string) error {
 	return nil
 }
 
-func handleNodeTemplate(ctx context.Context, prediction *replicate.Prediction, outputClonePath string) error {
-	fmt.Println("Cloning starter repo, and installing dependencies...")
+func handleNodeTemplate(ctx context.Context, prediction *replicate.Prediction, directory string) error {
+	fmt.Println("Cloning starter repo and installing dependencies...")
 
 	// 1. Clone the starter repo
-	if err := execCommand(ctx, fmt.Sprintf("git clone https://github.com/replicate/node-starter.git %s", outputClonePath)); err != nil {
+	if err := execCommand(ctx, fmt.Sprintf("git clone https://github.com/replicate/node-starter.git %s", directory)); err != nil {
 		return fmt.Errorf("failed to clone starter repo: %w", err)
 	}
 
 	// 2. Set chdir to the output path
-	if err := os.Chdir(outputClonePath); err != nil {
+	if err := os.Chdir(directory); err != nil {
 		fmt.Println(fmt.Errorf("failed to change directory: %w", err))
 		os.Exit(1)
 	}
@@ -161,7 +161,7 @@ func handleNodeTemplate(ctx context.Context, prediction *replicate.Prediction, o
 	inputs, _ := json.Marshal(prediction.Input)
 	replacedData = strings.ReplaceAll(replacedData, "{{INPUTS}}", string(inputs))
 
-	// 5. Write the populated template to to outputClonePath/index.js
+	// 5. Write the populated template to {directory}/index.js
 	fmt.Println("Writing new index.js...")
 	err = os.WriteFile("index.js", []byte(replacedData), 0o644)
 	if err != nil {
@@ -177,14 +177,16 @@ func handleNodeTemplate(ctx context.Context, prediction *replicate.Prediction, o
 	return nil
 }
 
-func handlePythonTemplate(ctx context.Context, prediction *replicate.Prediction, outputClonePath string) error {
+func handlePythonTemplate(ctx context.Context, prediction *replicate.Prediction, directory string) error {
+	fmt.Println("Cloning starter repo and installing dependencies...")
+
 	// 1. Clone the starter repo
-	if err := execCommand(ctx, fmt.Sprintf("git clone git@github.com:replicate/python-starter.git %s", outputClonePath)); err != nil {
+	if err := execCommand(ctx, fmt.Sprintf("git clone git@github.com:replicate/python-starter.git %s", directory)); err != nil {
 		return fmt.Errorf("failed to clone starter repo: %w", err)
 	}
 
 	// 2. Set chdir to the output path
-	err := os.Chdir(outputClonePath)
+	err := os.Chdir(directory)
 	if err != nil {
 		fmt.Println(fmt.Errorf("failed to change directory: %w", err))
 		os.Exit(1)
@@ -218,7 +220,7 @@ func handlePythonTemplate(ctx context.Context, prediction *replicate.Prediction,
 	inputs, _ := json.Marshal(prediction.Input)
 	replacedData = strings.ReplaceAll(replacedData, "{{INPUTS}}", string(inputs))
 
-	// 6. Write the populated template to to outputClonePath/prediction.py
+	// 6. Write the populated template to {directory}/prediction.py
 	fmt.Println("Writing new prediction.py...")
 	err = os.WriteFile("prediction.py", []byte(replacedData), 0o644)
 	if err != nil {
