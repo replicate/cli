@@ -53,7 +53,7 @@ var RootCmd = &cobra.Command{
 		}
 
 		switch template {
-		case "node", "":
+		case "node", "nodejs", "js", "":
 			return handleNodeTemplate(ctx, prediction, directory)
 		case "python":
 			return handlePythonTemplate(ctx, prediction, directory)
