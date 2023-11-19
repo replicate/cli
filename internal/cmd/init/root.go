@@ -27,7 +27,7 @@ var RootCmd = &cobra.Command{
 
 		client, err := replicate.NewClient(replicate.WithToken(apiToken))
 		if err != nil {
-			fmt.Println(fmt.Errorf("failed to create client: %w", err))
+			return fmt.Errorf("failed to create client: %w", err)
 		}
 
 		predictionId, err := parsePredictionId(args[0])
@@ -36,7 +36,7 @@ var RootCmd = &cobra.Command{
 		}
 		prediction, err := client.GetPrediction(ctx, predictionId)
 		if prediction == nil || err != nil {
-			fmt.Println(fmt.Errorf("failed to get prediction: %w", err))
+			return fmt.Errorf("failed to get prediction: %w", err)
 		}
 
 		var directory string
