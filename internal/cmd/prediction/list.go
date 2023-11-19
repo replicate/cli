@@ -37,7 +37,11 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "q", "ctrl+c":
 			return m, tea.Quit
 		case "enter":
-			url := fmt.Sprintf("https://replicate.com/p/%s", m.table.SelectedRow()[0])
+			selected := m.table.SelectedRow()
+			if len(selected) == 0 {
+				return m, nil
+			}
+			url := fmt.Sprintf("https://replicate.com/p/%s", selected[0])
 			return m, tea.ExecProcess(exec.Command("open", url), nil)
 		}
 	}
