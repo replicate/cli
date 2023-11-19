@@ -77,12 +77,18 @@ func parsePredictionId(predictionish string) (string, error) {
 	// Case 2: A URL in the form https://replicate.com/p/{id}
 	if strings.HasPrefix(predictionish, "replicate.com/p/") || strings.HasPrefix(predictionish, "https://replicate.com/p/") {
 		splitUrl := strings.Split(predictionish, "/")
+		if len(splitUrl) == 0 {
+			return "", fmt.Errorf("invalid URL format")
+		}
 		return splitUrl[len(splitUrl)-1], nil
 	}
 
 	// Case 3: A URL in the form https://api.replicate.com/v1/predictions/{id}
 	if strings.HasPrefix(predictionish, "api.replicate.com/v1/predictions/") || strings.HasPrefix(predictionish, "https://api.replicate.com/v1/predictions/") {
 		splitUrl := strings.Split(predictionish, "/")
+		if len(splitUrl) == 0 {
+			return "", fmt.Errorf("invalid URL format")
+		}
 		return splitUrl[len(splitUrl)-1], nil
 	}
 
@@ -92,7 +98,11 @@ func parsePredictionId(predictionish string) (string, error) {
 		if err != nil {
 			return "", fmt.Errorf("failed to parse URL: %w", err)
 		}
-		predictionId := parsedUrl.Query().Get("prediction")
+		queryParams, err := url.ParseQuery(parsedUrl.RawQuery)
+		if err != nil {
+			return "", fmt.Errorf("failed to parse query parameters: %w", err)
+		}
+		predictionId := queryParams.Get("prediction")
 		if predictionId == "" {
 			return "", fmt.Errorf("no prediction ID found in URL")
 		}
