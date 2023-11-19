@@ -72,13 +72,18 @@ func printModelVersionSchema(version *replicate.ModelVersion) error {
 		fmt.Println("Inputs:")
 
 		for _, propName := range util.SortedKeys(inputSchema.Value.Properties) {
-			prop := inputSchema.Value.Properties[propName]
+			prop, ok := inputSchema.Value.Properties[propName]
+			if !ok {
+				continue
+			}
+
 			description := prop.Value.Description
 			if prop.Value.Enum != nil {
 				for _, enum := range prop.Value.Enum {
 					description += fmt.Sprintf("\n- %s", enum)
 				}
 			}
+
 			fmt.Printf("- %s: %s (type: %s)\n", propName, description, prop.Value.Type)
 		}
 		fmt.Println()

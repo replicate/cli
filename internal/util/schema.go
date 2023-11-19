@@ -71,7 +71,7 @@ func CoerceTypes(inputs map[string]string, schema *openapi3.Schema) (map[string]
 		}
 
 		coercedValue, err := coerceType(v, propSchema)
-		if err != nil {
+		if err != nil || coercedValue == nil {
 			return nil, fmt.Errorf("failed to coerce %s for property %s: %w", v, k, err)
 		}
 		coerced[k] = coercedValue
@@ -103,6 +103,10 @@ func coerceType(input string, schema *openapi3.Schema) (interface{}, error) {
 	case "array":
 		var value []interface{}
 		err := json.Unmarshal([]byte(input), &value)
+		if err != nil {
+			return nil, fmt.Errorf("failed to unmarshal array: %w", err)
+		}
+
 		for i, v := range value {
 			encoded, err := json.Marshal(v)
 			if err != nil {
@@ -110,14 +114,14 @@ func coerceType(input string, schema *openapi3.Schema) (interface{}, error) {
 			}
 
 			coerced, err := coerceType(string(encoded), schema.Items.Value)
-			if err != nil {
+			if err != nil || coerced == nil {
 				return nil, fmt.Errorf("failed to coerce item %d: %w", i, err)
 			}
 
 			value[i] = coerced
 		}
 
-		return value, err
+		return value, nil
 	default:
 		// If the property has a default value, attempt to convert to that type
 		switch schema.Default.(type) {
