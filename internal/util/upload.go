@@ -29,8 +29,14 @@ func UploadFile(ctx context.Context, path string) (string, error) {
 
 	request.Header.Set("Authorization", "Token "+os.Getenv("REPLICATE_API_TOKEN"))
 	resp, err := http.DefaultClient.Do(request)
-	if err != nil || resp.StatusCode != http.StatusOK {
+	if err != nil {
 		return "", fmt.Errorf("failed to get upload URL: %w", err)
+	}
+	if resp == nil {
+		return "", fmt.Errorf("failed to get upload URL")
+	}
+	if resp.StatusCode != http.StatusOK {
+		return "", fmt.Errorf("failed to get upload URL: %s", resp.Status)
 	}
 
 	bodyBytes, err := io.ReadAll(resp.Body)
@@ -80,6 +86,9 @@ func UploadFile(ctx context.Context, path string) (string, error) {
 	resp, err = http.DefaultClient.Do(request)
 	if err != nil {
 		return "", fmt.Errorf("failed to upload data: %w", err)
+	}
+	if resp == nil {
+		return "", fmt.Errorf("failed to upload data")
 	}
 	if resp.StatusCode != http.StatusOK {
 		return "", fmt.Errorf("failed to upload data: %s", resp.Status)

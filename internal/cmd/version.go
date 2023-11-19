@@ -20,17 +20,19 @@ func Version() string {
 		modified := false
 
 		info, _ := debug.ReadBuildInfo()
-		for _, entry := range info.Settings {
-			if entry.Key == "vcs.revision" && len(entry.Value) >= 7 {
-				commit = entry.Value[:7] // short ref
-			}
+		if info != nil {
+			for _, entry := range info.Settings {
+				if entry.Key == "vcs.revision" && len(entry.Value) >= 7 {
+					commit = entry.Value[:7] // short ref
+				}
 
-			if entry.Key == "vcs.modified" {
-				modified = entry.Value == "true"
-			}
+				if entry.Key == "vcs.modified" {
+					modified = entry.Value == "true"
+				}
 
-			if entry.Key == "vcs.time" {
-				timestamp = timestampRegex.ReplaceAllString(entry.Value, "")
+				if entry.Key == "vcs.time" {
+					timestamp = timestampRegex.ReplaceAllString(entry.Value, "")
+				}
 			}
 		}
 

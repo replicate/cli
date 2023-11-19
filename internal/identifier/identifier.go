@@ -30,13 +30,14 @@ func ParseIdentifier(s string) (*Identifier, error) {
 
 	identifier.Owner = parts[0]
 	parts = strings.Split(parts[1], ":")
-	if len(parts) > 2 {
-		return nil, fmt.Errorf("invalid model identifier: %s", s)
-	}
-
-	identifier.Name = parts[0]
-	if len(parts) == 2 {
+	switch len(parts) {
+	case 1:
+		identifier.Name = parts[0]
+	case 2:
+		identifier.Name = parts[0]
 		identifier.Version = parts[1]
+	default:
+		return nil, fmt.Errorf("invalid model identifier: %s", s)
 	}
 
 	return identifier, nil
