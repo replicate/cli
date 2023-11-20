@@ -37,6 +37,7 @@ func init() {
 		prediction.RootCmd,
 		training.RootCmd,
 		hardware.RootCmd,
+		cmd.ScaffoldCmd,
 	} {
 		rootCmd.AddCommand(cmd)
 		cmd.GroupID = "core"
