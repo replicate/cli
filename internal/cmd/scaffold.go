@@ -1,4 +1,4 @@
-package scaffold
+package cmd
 
 import (
 	"context"
@@ -13,7 +13,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var RootCmd = &cobra.Command{
+var ScaffoldCmd = &cobra.Command{
 	Use:   "scaffold <prediction-ID-or-URL> [<directory>] [--template=<template>]",
 	Short: "Create a new local development environment from a prediction",
 	Args:  cobra.RangeArgs(1, 2),
@@ -60,7 +60,7 @@ var RootCmd = &cobra.Command{
 }
 
 func init() {
-	RootCmd.Flags().StringP("template", "t", "", "Starter git repo template to use. Currently supported: node, python")
+	ScaffoldCmd.Flags().StringP("template", "t", "", "Starter git repo template to use. Currently supported: node, python")
 }
 
 // Parse the prediction id from a url, or return the prediction id if it's not a url
