@@ -66,6 +66,22 @@ $ replicate run stability-ai/sdxl \
 Prediction created: https://replicate.com/p/jpgp263bdekvxileu2ppsy46v4
 ```
 
+### Create a local development environment from a prediction
+
+Create a Node.js or Python project from a prediction.
+
+```console
+$ replicate scaffold https://replicate.com/p/jpgp263bdekvxileu2ppsy46v4 --template=node
+Cloning starter repo and installing dependencies...
+Cloning into 'jpgp263bdekvxileu2ppsy46v4'...
+Writing new index.js...
+Running example prediction...
+[
+  'https://replicate.delivery/pbxt/P79eJmjeJsql40QpRbWVDtGJSoTtLTdJ494kpQexSDhYGy0jA/out-0.png'
+]
+Done!
+```
+
 ### Chain multiple predictions
 
 Generate an image with [SDXL] and upscale that image with [ESRGAN].
