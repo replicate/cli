@@ -7,9 +7,9 @@ import (
 
 	"github.com/replicate/cli/internal/cmd"
 	"github.com/replicate/cli/internal/cmd/hardware"
-	initCmd "github.com/replicate/cli/internal/cmd/init"
 	"github.com/replicate/cli/internal/cmd/model"
 	"github.com/replicate/cli/internal/cmd/prediction"
+	"github.com/replicate/cli/internal/cmd/scaffold"
 	"github.com/replicate/cli/internal/cmd/training"
 )
 
@@ -38,7 +38,7 @@ func init() {
 		prediction.RootCmd,
 		training.RootCmd,
 		hardware.RootCmd,
-		initCmd.RootCmd,
+		scaffold.RootCmd,
 	} {
 		rootCmd.AddCommand(cmd)
 		cmd.GroupID = "core"

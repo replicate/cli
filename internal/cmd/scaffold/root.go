@@ -1,4 +1,4 @@
-package init
+package scaffold
 
 import (
 	"context"
@@ -14,8 +14,8 @@ import (
 )
 
 var RootCmd = &cobra.Command{
-	Use:   "init <prediction-ID-or-URL> [<directory>] [--template=<template>]",
-	Short: "Initialize a new local development environment from a prediction",
+	Use:   "scaffold <prediction-ID-or-URL> [<directory>] [--template=<template>]",
+	Short: "Create a new local development environment from a prediction",
 	Args:  cobra.RangeArgs(1, 2),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		ctx := cmd.Context()
