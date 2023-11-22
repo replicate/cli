@@ -35,8 +35,10 @@ Usage:
   replicate [command]
 
 Core commands:
+  hardware    Interact with hardware
   model       Interact with models
   prediction  Interact with predictions
+  scaffold    Create a new local development environment from a prediction
   training    Interact with trainings
 
 Alias commands:
@@ -51,8 +53,7 @@ Flags:
   -h, --help      help for replicate
   -v, --version   version for replicate
 
-Use "replicate [command] --help" for more information about a command.
-```
+Use "replicate [command] --help" for more information about a command.```
 
 ---
 
