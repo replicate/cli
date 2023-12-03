@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/briandowns/spinner"
@@ -79,6 +80,12 @@ var StreamCmd = &cobra.Command{
 		var prediction *replicate.Prediction
 		if id.Version == "" {
 			prediction, err = client.CreatePredictionWithModel(ctx, id.Owner, id.Name, input, nil, true)
+			// TODO check status code
+			if err != nil && strings.Contains(err.Error(), "not found") {
+				if version != nil {
+					prediction, err = client.CreatePrediction(ctx, version.ID, input, nil, true)
+				}
+			}
 		} else {
 			prediction, err = client.CreatePrediction(ctx, id.Version, input, nil, true)
 		}
