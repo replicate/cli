@@ -11,7 +11,7 @@ require (
 	github.com/charmbracelet/bubbletea v0.24.2
 	github.com/charmbracelet/lipgloss v0.8.0
 	github.com/cli/browser v1.3.0
-	github.com/getkin/kin-openapi v0.120.0
+	github.com/getkin/kin-openapi v0.122.0
 	github.com/golangci/golangci-lint v1.55.2
 	github.com/mattn/go-isatty v0.0.20
 	github.com/replicate/replicate-go v0.13.2
