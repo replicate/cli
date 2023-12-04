@@ -14,11 +14,11 @@ require (
 	github.com/getkin/kin-openapi v0.122.0
 	github.com/golangci/golangci-lint v1.55.2
 	github.com/mattn/go-isatty v0.0.20
-	github.com/replicate/replicate-go v0.13.2
+	github.com/replicate/replicate-go v0.14.2
 	github.com/schollz/progressbar/v3 v3.13.1
 	github.com/spf13/cobra v1.8.0
 	github.com/stretchr/testify v1.8.4
-	go.uber.org/nilaway v0.0.0-20231117175943-a267567c6fff
+	go.uber.org/nilaway v0.0.0-20231130193605-0ef3071d1630
 	golang.org/x/sync v0.5.0
 )
 
@@ -206,13 +206,13 @@ require (
 	go.uber.org/atomic v1.7.0 // indirect
 	go.uber.org/multierr v1.6.0 // indirect
 	go.uber.org/zap v1.24.0 // indirect
-	golang.org/x/exp v0.0.0-20230713183714-613f0c0eb8a1 // indirect
+	golang.org/x/exp v0.0.0-20231108232855-2478ac86f678 // indirect
 	golang.org/x/exp/typeparams v0.0.0-20230307190834-24139beb5833 // indirect
-	golang.org/x/mod v0.13.0 // indirect
-	golang.org/x/sys v0.13.0 // indirect
+	golang.org/x/mod v0.14.0 // indirect
+	golang.org/x/sys v0.14.0 // indirect
 	golang.org/x/term v0.11.0 // indirect
 	golang.org/x/text v0.13.0 // indirect
-	golang.org/x/tools v0.14.0 // indirect
+	golang.org/x/tools v0.15.0 // indirect
 	google.golang.org/protobuf v1.28.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
