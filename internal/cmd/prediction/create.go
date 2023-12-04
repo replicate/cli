@@ -141,7 +141,9 @@ var CreateCmd = &cobra.Command{
 		}
 
 		url := fmt.Sprintf("https://replicate.com/p/%s", prediction.ID)
-		fmt.Printf("Prediction created: %s\n", url)
+		if !hasStream {
+			fmt.Printf("Prediction created: %s\n", url)
+		}
 
 		if cmd.Flags().Changed("web") {
 			if util.IsTTY() {
