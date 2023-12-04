@@ -43,6 +43,7 @@ Core commands:
 
 Alias commands:
   run         Alias for "prediction create"
+  stream      Alias for "prediction create --stream"
   train       Alias for "training create"
 
 Additional Commands:
@@ -65,6 +66,20 @@ Generate an image with [SDXL].
 $ replicate run stability-ai/sdxl \
       prompt="a studio photo of a rainbow colored corgi"
 Prediction created: https://replicate.com/p/jpgp263bdekvxileu2ppsy46v4
+```
+
+### Stream prediction output
+
+Run [LLaMA 2] and stream output tokens to your terminal.
+
+```console
+$ replicate stream meta/llama-2-70b-chat \
+    prompt="Tell me a joke about llamas"
+Sure, here's a joke about llamas for you:
+
+Why did the llama refuse to play poker?
+
+Because he always got fleeced!
 ```
 
 ### Create a local development environment from a prediction
