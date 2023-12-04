@@ -50,6 +50,7 @@ func init() {
 	for _, cmd := range []*cobra.Command{
 		cmd.RunCmd,
 		cmd.TrainCmd,
+		cmd.StreamCmd,
 	} {
 		rootCmd.AddCommand(cmd)
 		cmd.GroupID = "alias"

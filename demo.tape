@@ -17,6 +17,16 @@ Sleep 100ms
 Ctrl+C # Don't actually set the API key
 Sleep 1s
 
+Type 'replicate stream meta/llama-2-70b-chat \'
+Enter
+Type@50ms '  prompt="write a haiku about corgis"'
+Enter
+
+Sleep 2s
+
+Enter
+
+Enter
 Type 'replicate run stability-ai/sdxl \'
 Enter
 Type@50ms '  prompt="a studio photo of a rainbow colored corgi" \'
@@ -24,4 +34,4 @@ Enter
 Type@50ms '  width=512 height=512 seed=42069'
 Enter
 
-Sleep 10s
+Sleep 15s
