@@ -171,12 +171,14 @@ var CreateCmd = &cobra.Command{
 					}
 
 					switch event.Type {
-					case "output":
+					case replicate.SSETypeOutput:
 						token := event.Data
 						tokens = append(tokens, token)
 						fmt.Print(token)
-					case "logs":
+					case replicate.SSETypeLogs:
 						// TODO: print logs to stderr
+					case replicate.SSETypeDone:
+						return nil
 					default:
 						// ignore
 					}
@@ -201,7 +203,6 @@ var CreateCmd = &cobra.Command{
 						return fmt.Errorf("failed to create output directory: %w", err)
 					}
 
-					// write tokens to file
 					err = os.MkdirAll(dir, 0o755)
 					if err != nil {
 						return fmt.Errorf("failed to create directory: %w", err)
