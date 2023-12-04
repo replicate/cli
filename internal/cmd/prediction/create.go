@@ -43,11 +43,11 @@ var CreateCmd = &cobra.Command{
 
 		var version *replicate.ModelVersion
 		if id.Version == "" {
-			if model, err := client.GetModel(ctx, id.Owner, id.Name); err != nil {
+			if model, err := client.GetModel(ctx, id.Owner, id.Name); err == nil {
 				version = model.LatestVersion
 			}
 		} else {
-			if v, err := client.GetModelVersion(ctx, id.Owner, id.Name, id.Version); err != nil {
+			if v, err := client.GetModelVersion(ctx, id.Owner, id.Name, id.Version); err == nil {
 				version = v
 			}
 		}
@@ -78,14 +78,14 @@ var CreateCmd = &cobra.Command{
 		}
 
 		shouldWait := cmd.Flags().Changed("wait") || !cmd.Flags().Changed("no-wait")
-		shouldStream := !cmd.Flags().Changed("wait") && cmd.Flags().Changed("stream") || (outputSchema != nil && outputSchema.Type == "array" && outputSchema.Items.Value.Type == "string")
+		shouldStream := !cmd.Flags().Changed("wait") && cmd.Flags().Changed("stream") || (outputSchema != nil && outputSchema.Type == "array" && outputSchema.Items.Value.Type == "string" && outputSchema.Items.Value.Format != "uri")
 
 		s.Start()
 		var prediction *replicate.Prediction
 		if id.Version == "" {
 			prediction, err = client.CreatePredictionWithModel(ctx, id.Owner, id.Name, coercedInputs, nil, shouldStream)
 			// TODO: check status code
-			if err != nil && strings.Contains(err.Error(), "not found") {
+			if err != nil {
 				if version != nil {
 					prediction, err = client.CreatePrediction(ctx, version.ID, coercedInputs, nil, shouldStream)
 				}
@@ -120,6 +120,7 @@ var CreateCmd = &cobra.Command{
 						fmt.Print(event.Data)
 					}
 				}
+				fmt.Println("")
 
 				return nil
 			}
