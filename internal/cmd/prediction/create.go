@@ -162,56 +162,63 @@ var CreateCmd = &cobra.Command{
 		if hasStream {
 			sseChan, errChan := client.StreamPrediction(ctx, prediction)
 
+			debug := cmd.Flags().Changed("debug") && util.IsTTY()
+
 			tokens := []string{}
+		loop:
 			for {
 				select {
 				case event, ok := <-sseChan:
 					if !ok {
-						return nil
+						break loop
+					}
+
+					if debug {
+						fmt.Printf("%v\n", event)
 					}
 
 					switch event.Type {
 					case replicate.SSETypeOutput:
 						token := event.Data
 						tokens = append(tokens, token)
-						fmt.Print(token)
+						if !debug {
+							fmt.Print(token)
+						}
 					case replicate.SSETypeLogs:
 						// TODO: print logs to stderr
 					case replicate.SSETypeDone:
-						return nil
-					default:
-						// ignore
+						break loop
 					}
 				case err, ok := <-errChan:
 					if !ok {
-						return nil
+						break loop
 					}
 
 					return fmt.Errorf("streaming error: %w", err)
 				}
+			}
 
-				if cmd.Flags().Changed("save") {
-					var dirname string
-					if cmd.Flags().Changed("output-directory") {
-						dirname = cmd.Flag("output-directory").Value.String()
-					} else {
-						dirname = fmt.Sprintf("./%s", prediction.ID)
-					}
+			if cmd.Flags().Changed("save") {
+				var dirname string
+				if cmd.Flags().Changed("output-directory") {
+					dirname = cmd.Flag("output-directory").Value.String()
+				} else {
+					dirname = fmt.Sprintf("./%s", prediction.ID)
+				}
 
-					dir, err := filepath.Abs(dirname)
-					if err != nil {
-						return fmt.Errorf("failed to create output directory: %w", err)
-					}
+				dir, err := filepath.Abs(dirname)
+				if err != nil {
+					return fmt.Errorf("failed to create output directory: %w", err)
+				}
 
-					err = os.MkdirAll(dir, 0o755)
-					if err != nil {
-						return fmt.Errorf("failed to create directory: %w", err)
-					}
+				err = os.MkdirAll(dir, 0o755)
+				if err != nil {
+					return fmt.Errorf("failed to create directory: %w", err)
+				}
 
-					err = os.WriteFile(filepath.Join(dir, "output.txt"), []byte(strings.Join(tokens, "")), 0o644)
-					if err != nil {
-						return fmt.Errorf("failed to write output: %w", err)
-					}
+				err = os.WriteFile(filepath.Join(dir, "output.txt"), []byte(strings.Join(tokens, "")), 0o644)
+				if err != nil {
+					return fmt.Errorf("failed to write output: %w", err)
 				}
 			}
 		} else if shouldWait {
