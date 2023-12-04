@@ -71,8 +71,8 @@ func printModelVersionSchema(version *replicate.ModelVersion) error {
 	if inputSchema != nil {
 		fmt.Println("Inputs:")
 
-		for _, propName := range util.SortedKeys(inputSchema.Value.Properties) {
-			prop, ok := inputSchema.Value.Properties[propName]
+		for _, propName := range util.SortedKeys(inputSchema.Properties) {
+			prop, ok := inputSchema.Properties[propName]
 			if !ok {
 				continue
 			}
@@ -91,9 +91,9 @@ func printModelVersionSchema(version *replicate.ModelVersion) error {
 
 	if outputSchema != nil {
 		fmt.Println("Output:")
-		fmt.Printf("- type: %s\n", outputSchema.Value.Type)
-		if outputSchema.Value.Type == "array" {
-			fmt.Printf("- items: %s %s\n", outputSchema.Value.Items.Value.Type, outputSchema.Value.Items.Value.Format)
+		fmt.Printf("- type: %s\n", outputSchema.Type)
+		if outputSchema.Type == "array" {
+			fmt.Printf("- items: %s %s\n", outputSchema.Items.Value.Type, outputSchema.Items.Value.Format)
 		}
 		fmt.Println()
 	}

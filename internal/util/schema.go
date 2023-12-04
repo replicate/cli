@@ -11,7 +11,7 @@ import (
 )
 
 // GetSchemas returns the input and output schemas for a model version
-func GetSchemas(version replicate.ModelVersion) (input *openapi3.SchemaRef, output *openapi3.SchemaRef, err error) {
+func GetSchemas(version replicate.ModelVersion) (input *openapi3.Schema, output *openapi3.Schema, err error) {
 	bytes, err := json.Marshal(version.OpenAPISchema)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to serialize schema: %w", err)
@@ -23,10 +23,18 @@ func GetSchemas(version replicate.ModelVersion) (input *openapi3.SchemaRef, outp
 	}
 
 	schemas := spec.Components.Schemas
-	inputSchema, _ := schemas["Input"]
-	outputSchema, _ := schemas["Output"]
+	inputSchemaRef, _ := schemas["Input"]
+	outputSchemaRef, _ := schemas["Output"]
 
-	return inputSchema, outputSchema, nil
+	if inputSchemaRef != nil {
+		input = inputSchemaRef.Value
+	}
+
+	if outputSchemaRef != nil {
+		output = outputSchemaRef.Value
+	}
+
+	return input, output, nil
 }
 
 // SortedKeys returns the keys of the properties in the order they should be displayed
