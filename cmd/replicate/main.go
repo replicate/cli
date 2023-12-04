@@ -55,4 +55,7 @@ func init() {
 		rootCmd.AddCommand(cmd)
 		cmd.GroupID = "alias"
 	}
+
+	rootCmd.PersistentFlags().Bool("debug", false, "Enable debug logging")
+	rootCmd.PersistentFlags().Lookup("debug").Hidden = true
 }
