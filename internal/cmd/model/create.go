@@ -25,9 +25,9 @@ var createCmd = &cobra.Command{
 		flags := cmd.Flags()
 
 		if flags.Changed("public") {
-			opts.Visibility, _ = flags.GetString("public")
+			opts.Visibility = "public"
 		} else if flags.Changed("private") {
-			opts.Visibility, _ = flags.GetString("private")
+			opts.Visibility = "private"
 		}
 
 		opts.Hardware, _ = flags.GetString("hardware")
