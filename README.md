@@ -55,6 +55,7 @@ Flags:
   -v, --version   version for replicate
 
 Use "replicate [command] --help" for more information about a command.```
+```
 
 ---
 
@@ -73,7 +74,7 @@ Prediction created: https://replicate.com/p/jpgp263bdekvxileu2ppsy46v4
 Run [LLaMA 2] and stream output tokens to your terminal.
 
 ```console
-$ replicate stream meta/llama-2-70b-chat \
+$ replicate run meta/llama-2-70b-chat --stream \
     prompt="Tell me a joke about llamas"
 Sure, here's a joke about llamas for you:
 
