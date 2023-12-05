@@ -297,7 +297,6 @@ func AddCreateFlags(cmd *cobra.Command) {
 	cmd.Flags().String("output-directory", "", "Output directory, defaults to ./{prediction-id}")
 
 	cmd.MarkFlagsMutuallyExclusive("json", "web")
-	cmd.MarkFlagsMutuallyExclusive("json", "stream")
 	cmd.MarkFlagsMutuallyExclusive("stream", "wait")
 	cmd.MarkFlagsMutuallyExclusive("wait", "no-wait")
 }
