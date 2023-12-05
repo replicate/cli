@@ -107,20 +107,35 @@ var CreateCmd = &cobra.Command{
 				if cmd.Flags().Changed("json") {
 					fmt.Print("[")
 					defer fmt.Print("]")
-				}
 
-				for event := range events {
-					if cmd.Flags().Changed("json") {
+					prefix := ""
+					for event := range events {
+						if event.Type != replicate.SSETypeOutput {
+							continue
+						}
+
+						if event.Data == "" {
+							continue
+						}
+
 						b, err := json.Marshal(event.Data)
 						if err != nil {
 							return fmt.Errorf("failed to marshal event: %w", err)
 						}
-						fmt.Printf("%s,", string(b))
-					} else {
+
+						fmt.Printf("%s%s", prefix, string(b))
+						prefix = ", "
+					}
+				} else {
+					for event := range events {
+						if event.Type != replicate.SSETypeOutput {
+							continue
+						}
+
 						fmt.Print(event.Data)
 					}
+					fmt.Println("")
 				}
-				fmt.Println("")
 
 				return nil
 			}
