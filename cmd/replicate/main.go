@@ -7,6 +7,7 @@ import (
 
 	"github.com/replicate/cli/internal"
 	"github.com/replicate/cli/internal/cmd"
+	"github.com/replicate/cli/internal/cmd/auth"
 	"github.com/replicate/cli/internal/cmd/hardware"
 	"github.com/replicate/cli/internal/cmd/model"
 	"github.com/replicate/cli/internal/cmd/prediction"
@@ -34,6 +35,7 @@ func init() {
 		Title: "Core commands:",
 	})
 	for _, cmd := range []*cobra.Command{
+		auth.RootCmd,
 		model.RootCmd,
 		prediction.RootCmd,
 		training.RootCmd,
