@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/cli/browser"
+	"github.com/replicate/cli/internal/client"
 	"github.com/replicate/cli/internal/identifier"
 	"github.com/replicate/cli/internal/util"
 	"github.com/replicate/replicate-go"
@@ -46,12 +47,12 @@ var createCmd = &cobra.Command{
 			}
 		}
 
-		client, err := replicate.NewClient(replicate.WithTokenFromEnv())
+		r8, err := client.NewClient()
 		if err != nil {
-			return fmt.Errorf("failed to create client: %w", err)
+			return err
 		}
 
-		model, err := client.CreateModel(cmd.Context(), id.Owner, id.Name, *opts)
+		model, err := r8.CreateModel(cmd.Context(), id.Owner, id.Name, *opts)
 		if err != nil {
 			return fmt.Errorf("failed to create model: %w", err)
 		}

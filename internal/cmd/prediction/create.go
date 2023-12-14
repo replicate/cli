@@ -11,6 +11,7 @@ import (
 	"github.com/briandowns/spinner"
 	"github.com/cli/browser"
 	"github.com/getkin/kin-openapi/openapi3"
+	"github.com/replicate/cli/internal/client"
 	"github.com/replicate/cli/internal/identifier"
 	"github.com/replicate/cli/internal/util"
 	"github.com/replicate/replicate-go"
@@ -36,18 +37,18 @@ var CreateCmd = &cobra.Command{
 
 		ctx := cmd.Context()
 
-		client, err := replicate.NewClient(replicate.WithTokenFromEnv())
+		r8, err := client.NewClient()
 		if err != nil {
-			return fmt.Errorf("failed to create client: %w", err)
+			return err
 		}
 
 		var version *replicate.ModelVersion
 		if id.Version == "" {
-			if model, err := client.GetModel(ctx, id.Owner, id.Name); err == nil {
+			if model, err := r8.GetModel(ctx, id.Owner, id.Name); err == nil {
 				version = model.LatestVersion
 			}
 		} else {
-			if v, err := client.GetModelVersion(ctx, id.Owner, id.Name, id.Version); err == nil {
+			if v, err := r8.GetModelVersion(ctx, id.Owner, id.Name, id.Version); err == nil {
 				version = v
 			}
 		}
@@ -83,15 +84,15 @@ var CreateCmd = &cobra.Command{
 		s.Start()
 		var prediction *replicate.Prediction
 		if id.Version == "" {
-			prediction, err = client.CreatePredictionWithModel(ctx, id.Owner, id.Name, coercedInputs, nil, shouldStream)
+			prediction, err = r8.CreatePredictionWithModel(ctx, id.Owner, id.Name, coercedInputs, nil, shouldStream)
 			// TODO: check status code
 			if err != nil {
 				if version != nil {
-					prediction, err = client.CreatePrediction(ctx, version.ID, coercedInputs, nil, shouldStream)
+					prediction, err = r8.CreatePrediction(ctx, version.ID, coercedInputs, nil, shouldStream)
 				}
 			}
 		} else {
-			prediction, err = client.CreatePrediction(ctx, id.Version, coercedInputs, nil, shouldStream)
+			prediction, err = r8.CreatePrediction(ctx, id.Version, coercedInputs, nil, shouldStream)
 		}
 		if err != nil {
 			return fmt.Errorf("failed to create prediction: %w", err)
@@ -102,7 +103,7 @@ var CreateCmd = &cobra.Command{
 
 		if !util.IsTTY() || cmd.Flags().Changed("json") {
 			if hasStream {
-				events, _ := client.StreamPrediction(ctx, prediction)
+				events, _ := r8.StreamPrediction(ctx, prediction)
 
 				if cmd.Flags().Changed("json") {
 					fmt.Print("[")
@@ -141,7 +142,7 @@ var CreateCmd = &cobra.Command{
 			}
 
 			if shouldWait {
-				err = client.Wait(ctx, prediction)
+				err = r8.Wait(ctx, prediction)
 				if err != nil {
 					return fmt.Errorf("failed to wait for prediction: %w", err)
 				}
@@ -175,7 +176,7 @@ var CreateCmd = &cobra.Command{
 		}
 
 		if hasStream {
-			sseChan, errChan := client.StreamPrediction(ctx, prediction)
+			sseChan, errChan := r8.StreamPrediction(ctx, prediction)
 
 			tokens := []string{}
 			for {
@@ -233,7 +234,7 @@ var CreateCmd = &cobra.Command{
 			bar := progressbar.Default(100)
 			bar.Describe("processing")
 
-			predChan, errChan := client.WaitAsync(ctx, prediction)
+			predChan, errChan := r8.WaitAsync(ctx, prediction)
 			for pred := range predChan {
 				progress := pred.Progress()
 				if progress != nil {

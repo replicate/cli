@@ -5,8 +5,8 @@ import (
 	"fmt"
 
 	"github.com/cli/browser"
+	"github.com/replicate/cli/internal/client"
 	"github.com/replicate/cli/internal/util"
-	"github.com/replicate/replicate-go"
 	"github.com/spf13/cobra"
 )
 
@@ -34,11 +34,12 @@ var showCmd = &cobra.Command{
 
 		ctx := cmd.Context()
 
-		client, err := replicate.NewClient(replicate.WithTokenFromEnv())
+		r8, err := client.NewClient()
 		if err != nil {
-			return fmt.Errorf("failed to create client: %w", err)
+			return err
 		}
-		prediction, err := client.GetPrediction(ctx, id)
+
+		prediction, err := r8.GetPrediction(ctx, id)
 		if prediction == nil || err != nil {
 			return fmt.Errorf("failed to get prediction: %w", err)
 		}

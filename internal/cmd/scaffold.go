@@ -27,7 +27,7 @@ var ScaffoldCmd = &cobra.Command{
 
 		client, err := replicate.NewClient(replicate.WithToken(apiToken))
 		if err != nil {
-			return fmt.Errorf("failed to create client: %w", err)
+			return err
 		}
 
 		predictionId, err := parsePredictionId(args[0])
