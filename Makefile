@@ -20,7 +20,7 @@ all: replicate
 
 replicate:
 	CGO_ENABLED=0 $(GO) build -o $@ \
-		-ldflags "-X github.com/replicate/cli/internal/cmd.version=$(REPLICATE_CLI_VERSION) -w" \
+		-ldflags "-X github.com/replicate/cli/internal.version=$(REPLICATE_CLI_VERSION) -w" \
 		main.go
 
 demo.gif: replicate demo.tape
