@@ -7,8 +7,8 @@ import (
 	"github.com/cli/browser"
 	"github.com/spf13/cobra"
 
+	"github.com/replicate/cli/internal/client"
 	"github.com/replicate/cli/internal/util"
-	"github.com/replicate/replicate-go"
 )
 
 // listCmd represents the list hardware command
@@ -32,12 +32,12 @@ var listCmd = &cobra.Command{
 			return nil
 		}
 
-		client, err := replicate.NewClient(replicate.WithTokenFromEnv())
+		r8, err := client.NewClient()
 		if err != nil {
-			return fmt.Errorf("failed to create client: %w", err)
+			return err
 		}
 
-		hardware, err := client.ListHardware(ctx)
+		hardware, err := r8.ListHardware(ctx)
 		if err != nil {
 			return fmt.Errorf("failed to list hardware: %w", err)
 		}

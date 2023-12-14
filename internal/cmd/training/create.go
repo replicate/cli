@@ -7,6 +7,7 @@ import (
 
 	"github.com/briandowns/spinner"
 	"github.com/cli/browser"
+	"github.com/replicate/cli/internal/client"
 	"github.com/replicate/cli/internal/identifier"
 	"github.com/replicate/cli/internal/util"
 	"github.com/replicate/replicate-go"
@@ -38,14 +39,14 @@ var CreateCmd = &cobra.Command{
 
 		ctx := cmd.Context()
 
-		client, err := replicate.NewClient(replicate.WithTokenFromEnv())
+		r8, err := client.NewClient()
 		if err != nil {
-			return fmt.Errorf("failed to create client: %w", err)
+			return err
 		}
 
 		var version *replicate.ModelVersion
 		if id.Version == "" {
-			model, err := client.GetModel(ctx, id.Owner, id.Name)
+			model, err := r8.GetModel(ctx, id.Owner, id.Name)
 			if err != nil {
 				return fmt.Errorf("failed to get model: %w", err)
 			}
@@ -56,7 +57,7 @@ var CreateCmd = &cobra.Command{
 
 			version = model.LatestVersion
 		} else {
-			version, err = client.GetModelVersion(ctx, id.Owner, id.Name, id.Version)
+			version, err = r8.GetModelVersion(ctx, id.Owner, id.Name, id.Version)
 			if err != nil {
 				return fmt.Errorf("failed to get model version: %w", err)
 			}
@@ -79,7 +80,7 @@ var CreateCmd = &cobra.Command{
 		}
 
 		s.Start()
-		training, err := client.CreateTraining(ctx, id.Owner, id.Name, version.ID, destination, coercedInputs, nil)
+		training, err := r8.CreateTraining(ctx, id.Owner, id.Name, version.ID, destination, coercedInputs, nil)
 		if err != nil {
 			return fmt.Errorf("failed to create training: %w", err)
 		}

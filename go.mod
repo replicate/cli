@@ -20,6 +20,7 @@ require (
 	github.com/stretchr/testify v1.8.4
 	go.uber.org/nilaway v0.0.0-20231130193605-0ef3071d1630
 	golang.org/x/sync v0.5.0
+	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (
@@ -216,7 +217,6 @@ require (
 	google.golang.org/protobuf v1.28.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
-	gopkg.in/yaml.v3 v3.0.1 // indirect
 	honnef.co/go/tools v0.4.6 // indirect
 	mvdan.cc/gofumpt v0.5.0 // indirect
 	mvdan.cc/interfacer v0.0.0-20180901003855-c20040233aed // indirect

@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os/exec"
 
+	"github.com/replicate/cli/internal/client"
 	"github.com/replicate/cli/internal/util"
-	"github.com/replicate/replicate-go"
 	"github.com/spf13/cobra"
 
 	"github.com/charmbracelet/bubbles/table"
@@ -59,12 +59,12 @@ var listCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		ctx := cmd.Context()
 
-		client, err := replicate.NewClient(replicate.WithTokenFromEnv())
+		r8, err := client.NewClient()
 		if err != nil {
-			return fmt.Errorf("failed to create client: %w", err)
+			return err
 		}
 
-		trainings, err := client.ListTrainings(ctx)
+		trainings, err := r8.ListTrainings(ctx)
 		if err != nil {
 			return fmt.Errorf("failed to get trainings: %w", err)
 		}

@@ -8,16 +8,18 @@ Set FontSize 24
 Set Width 1200
 Set Height 600
 
-Type "export REPLICATE_API_TOKEN="
+Type "echo "
 Sleep 100ms
 Hide
 Type "r8_•••••••••••••••••••••••••••••••••••••"
 Show
 Sleep 100ms
+Type " | replicate auth login"
+Sleep 100ms
 Ctrl+C # Don't actually set the API key
 Sleep 1s
 
-Type 'replicate stream meta/llama-2-70b-chat \'
+Type 'replicate run meta/llama-2-70b-chat \'
 Enter
 Type@50ms '  prompt="write a haiku about corgis"'
 Enter
@@ -34,4 +36,4 @@ Enter
 Type@50ms '  width=512 height=512 seed=42069'
 Enter
 
-Sleep 15s
+Sleep 30s

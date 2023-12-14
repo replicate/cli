@@ -5,7 +5,9 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/replicate/cli/internal"
 	"github.com/replicate/cli/internal/cmd"
+	"github.com/replicate/cli/internal/cmd/auth"
 	"github.com/replicate/cli/internal/cmd/hardware"
 	"github.com/replicate/cli/internal/cmd/model"
 	"github.com/replicate/cli/internal/cmd/prediction"
@@ -15,7 +17,7 @@ import (
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:     "replicate",
-	Version: cmd.Version(),
+	Version: internal.Version(),
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -33,6 +35,7 @@ func init() {
 		Title: "Core commands:",
 	})
 	for _, cmd := range []*cobra.Command{
+		auth.RootCmd,
 		model.RootCmd,
 		prediction.RootCmd,
 		training.RootCmd,
