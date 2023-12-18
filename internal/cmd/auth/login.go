@@ -38,6 +38,9 @@ You can find your Replicate API token at https://replicate.com/account`,
 			if err != nil {
 				return fmt.Errorf("failed to read token from stdin: %w", err)
 			}
+			if token == "" {
+				return fmt.Errorf("no token provided (empty string)")
+			}
 		} else {
 			return fmt.Errorf("token must be passed to stdin with --token-stdin flag")
 		}
