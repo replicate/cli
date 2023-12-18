@@ -20,7 +20,7 @@ func NewClient(opts ...replicate.ClientOption) (*replicate.Client, error) {
 		return nil, fmt.Errorf("please authenticate with `replicate login`")
 	}
 
-	userAgent := fmt.Sprintf("replicate/%s", internal.Version())
+	userAgent := fmt.Sprintf("replicate-cli/%s", internal.Version())
 
 	opts = append([]replicate.ClientOption{
 		replicate.WithBaseURL(baseURL),
