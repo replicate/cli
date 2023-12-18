@@ -17,7 +17,7 @@ func NewClient(opts ...replicate.ClientOption) (*replicate.Client, error) {
 		return nil, fmt.Errorf("failed to get API token: %w", err)
 	}
 	if token == "" {
-		return nil, fmt.Errorf("please authenticate with `replicate login`")
+		return nil, fmt.Errorf("please authenticate with `replicate auth login`")
 	}
 
 	userAgent := fmt.Sprintf("replicate/%s", internal.Version())
