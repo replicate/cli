@@ -14,7 +14,10 @@ func NewClient(opts ...replicate.ClientOption) (*replicate.Client, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to get API token: %w", err)
 	}
-	if token == "" {
+
+	// Validate token when connecting to api.replicate.com.
+	// Alternate API hosts proxying Replicate may not require a token.
+	if token == "" && config.GetAPIBaseURL() == config.DefaultBaseURL {
 		return nil, fmt.Errorf("please authenticate with `replicate auth login`")
 	}
 
