@@ -10,15 +10,22 @@ import (
 )
 
 func NewClient(opts ...replicate.ClientOption) (*replicate.Client, error) {
-	baseURL := config.GetAPIBaseURL()
-
 	token, err := config.GetAPIToken()
 	if err != nil {
 		return nil, fmt.Errorf("failed to get API token: %w", err)
 	}
-	if token == "" {
+
+	// Validate token when connecting to api.replicate.com.
+	// Alternate API hosts proxying Replicate may not require a token.
+	if token == "" && config.GetAPIBaseURL() == config.DefaultBaseURL {
 		return nil, fmt.Errorf("please authenticate with `replicate auth login`")
 	}
+
+	return NewClientWithAPIToken(token, opts...)
+}
+
+func NewClientWithAPIToken(token string, opts ...replicate.ClientOption) (*replicate.Client, error) {
+	baseURL := config.GetAPIBaseURL()
 
 	userAgent := fmt.Sprintf("replicate-cli/%s", internal.Version())
 
@@ -37,7 +44,7 @@ func NewClient(opts ...replicate.ClientOption) (*replicate.Client, error) {
 }
 
 func VerifyToken(ctx context.Context, token string) (bool, error) {
-	r8, err := NewClient(replicate.WithToken(token))
+	r8, err := NewClientWithAPIToken(token)
 	if err != nil {
 		return false, err
 	}
