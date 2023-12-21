@@ -9,6 +9,8 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+
+	"github.com/replicate/cli/internal/config"
 )
 
 // uploadFile uploads a file to Replicate's experimental DreamBooth API and returns the URL
@@ -27,7 +29,16 @@ func UploadFile(ctx context.Context, path string) (string, error) {
 		return "", fmt.Errorf("failed to create upload request: %w", err)
 	}
 
-	request.Header.Set("Authorization", "Token "+os.Getenv("REPLICATE_API_TOKEN"))
+	token, exists := os.LookupEnv("REPLICATE_API_TOKEN")
+	if !exists {
+		var err error
+		token, err = config.GetAPIToken()
+		if err != nil {
+			return "", fmt.Errorf("failed to get API token: %w", err)
+		}
+	}
+
+	request.Header.Set("Authorization", fmt.Sprintf("Token %s", token))
 	resp, err := http.DefaultClient.Do(request)
 	if err != nil {
 		return "", fmt.Errorf("failed to get upload URL: %w", err)
