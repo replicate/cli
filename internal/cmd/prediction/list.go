@@ -1,6 +1,7 @@
 package prediction
 
 import (
+	"encoding/json"
 	"fmt"
 	"os/exec"
 
@@ -69,6 +70,15 @@ var listCmd = &cobra.Command{
 			return fmt.Errorf("failed to get predictions: %w", err)
 		}
 
+		if cmd.Flags().Changed("json") || !util.IsTTY() {
+			bytes, err := json.MarshalIndent(predictions, "", "  ")
+			if err != nil {
+				return fmt.Errorf("failed to marshal predictions: %w", err)
+			}
+			fmt.Println(string(bytes))
+			return nil
+		}
+
 		columns := []table.Column{
 			{Title: "ID", Width: 20},
 			{Title: "Version", Width: 20},
@@ -113,4 +123,12 @@ var listCmd = &cobra.Command{
 
 		return nil
 	},
+}
+
+func init() {
+	addListFlags(listCmd)
+}
+
+func addListFlags(cmd *cobra.Command) {
+	cmd.Flags().Bool("json", false, "Emit JSON")
 }
