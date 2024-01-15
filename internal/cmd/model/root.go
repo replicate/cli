@@ -19,6 +19,7 @@ func init() {
 		showCmd,
 		schemaCmd,
 		createCmd,
+		listCmd,
 	} {
 		RootCmd.AddCommand(cmd)
 		cmd.GroupID = "subcommand"
