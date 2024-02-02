@@ -19,6 +19,14 @@ make
 sudo make install
 ```
 
+## Upgrade
+
+If you're using macOS and you previously installed the CLI with Homebrew, run the following:
+
+```console
+brew upgrade replicate
+```
+
 ## Usage
 
 Grab your API token from [replicate.com/account](https://replicate.com/account)
