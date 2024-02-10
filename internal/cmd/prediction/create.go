@@ -78,8 +78,15 @@ var CreateCmd = &cobra.Command{
 			return fmt.Errorf("failed to coerce inputs: %w", err)
 		}
 
-		shouldWait := cmd.Flags().Changed("wait") || !cmd.Flags().Changed("no-wait")
-		shouldStream := !cmd.Flags().Changed("wait") && cmd.Flags().Changed("stream") || (outputSchema != nil && outputSchema.Type == "array" && outputSchema.Items.Value.Type == "string" && outputSchema.Items.Value.Format != "uri")
+		shouldWait := (cmd.Flags().Changed("wait") || !cmd.Flags().Changed("no-wait"))
+
+		canStream := (outputSchema != nil &&
+			outputSchema.Type == "array" &&
+			outputSchema.Items.Value.Type == "string" &&
+			outputSchema.Extensions["x-cog-array-type"] == "iterator" &&
+			outputSchema.Extensions["x-cog-array-display"] == "concatenate")
+		shouldStream := canStream && !cmd.Flags().Changed("wait") &&
+			(cmd.Flags().Changed("stream") || !cmd.Flags().Changed("no-stream"))
 
 		s.Start()
 		var prediction *replicate.Prediction
@@ -304,15 +311,20 @@ func init() {
 
 func AddCreateFlags(cmd *cobra.Command) {
 	cmd.Flags().Bool("json", false, "Emit JSON")
-	cmd.Flags().Bool("no-wait", false, "Don't wait for prediction to complete")
-	cmd.Flags().BoolP("wait", "w", true, "Wait for prediction to complete")
-	cmd.Flags().Bool("stream", false, "Stream prediction output")
 	cmd.Flags().Bool("web", false, "View on web")
+	cmd.MarkFlagsMutuallyExclusive("json", "web")
+
+	cmd.Flags().BoolP("wait", "w", true, "Wait for prediction to complete")
+	cmd.Flags().Bool("no-wait", false, "Don't wait for prediction to complete")
+	cmd.MarkFlagsMutuallyExclusive("wait", "no-wait")
+
+	cmd.Flags().Bool("stream", false, "Stream prediction output")
+	cmd.Flags().Bool("no-stream", false, "Don't stream prediction output")
+	cmd.MarkFlagsMutuallyExclusive("stream", "no-stream")
+	cmd.MarkFlagsMutuallyExclusive("stream", "wait")
+
 	cmd.Flags().String("separator", "=", "Separator between input key and value")
+
 	cmd.Flags().Bool("save", false, "Save prediction outputs to directory")
 	cmd.Flags().String("output-directory", "", "Output directory, defaults to ./{prediction-id}")
-
-	cmd.MarkFlagsMutuallyExclusive("json", "web")
-	cmd.MarkFlagsMutuallyExclusive("stream", "wait")
-	cmd.MarkFlagsMutuallyExclusive("wait", "no-wait")
 }
