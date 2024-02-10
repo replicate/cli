@@ -13,7 +13,7 @@ const (
 	DefaultBaseURL = "https://api.replicate.com/v1/"
 )
 
-var configFile string
+var ConfigFilePath string
 
 type config map[string]Host
 
@@ -24,11 +24,11 @@ type Host struct {
 func init() {
 	// Look for config in the XDG_CONFIG_HOME directory
 	if configDir, exists := os.LookupEnv("XDG_CONFIG_HOME"); exists {
-		configFile = filepath.Join(configDir, "replicate", "hosts")
+		ConfigFilePath = filepath.Join(configDir, "replicate", "hosts")
 	} else {
 		// Look for config in the default directory
 		if homeDir, err := os.UserHomeDir(); err == nil {
-			configFile = filepath.Join(homeDir, ".config", "replicate", "hosts")
+			ConfigFilePath = filepath.Join(homeDir, ".config", "replicate", "hosts")
 		}
 	}
 }
@@ -52,11 +52,11 @@ func GetAPITokenForHost(host string) (string, error) {
 		return "", fmt.Errorf("invalid host: %s", err)
 	}
 
-	if _, err := os.Stat(configFile); os.IsNotExist(err) {
+	if _, err := os.Stat(ConfigFilePath); os.IsNotExist(err) {
 		return "", nil
 	}
 
-	data, err := os.ReadFile(configFile)
+	data, err := os.ReadFile(ConfigFilePath)
 	if err != nil {
 		return "", fmt.Errorf("failed to read config file: %w", err)
 	}
@@ -93,19 +93,19 @@ func SetAPITokenForHost(apiToken, host string) error {
 		return fmt.Errorf("invalid host: %s", err)
 	}
 
-	if _, err := os.Stat(configFile); os.IsNotExist(err) {
-		err = os.MkdirAll(filepath.Dir(configFile), 0o755)
+	if _, err := os.Stat(ConfigFilePath); os.IsNotExist(err) {
+		err = os.MkdirAll(filepath.Dir(ConfigFilePath), 0o755)
 		if err != nil {
 			return fmt.Errorf("failed to create config directory: %w", err)
 		}
 
-		_, err = os.Create(configFile)
+		_, err = os.Create(ConfigFilePath)
 		if err != nil {
 			return fmt.Errorf("failed to create config file: %w", err)
 		}
 	}
 
-	data, err := os.ReadFile(configFile)
+	data, err := os.ReadFile(ConfigFilePath)
 	if err != nil {
 		return err
 	}
@@ -127,7 +127,7 @@ func SetAPITokenForHost(apiToken, host string) error {
 		return fmt.Errorf("failed to marshal config file: %w", err)
 	}
 
-	err = os.WriteFile(configFile, data, 0o644)
+	err = os.WriteFile(ConfigFilePath, data, 0o644)
 	if err != nil {
 		return fmt.Errorf("failed to write config file: %w", err)
 	}
