@@ -58,7 +58,7 @@ You can find your Replicate API token at https://replicate.com/account`,
 			return fmt.Errorf("failed to set API token: %w", err)
 		}
 
-		fmt.Println("Login successful.")
+		fmt.Printf("Token saved to configuration file: %s\n", config.ConfigFilePath)
 
 		return nil
 	},
