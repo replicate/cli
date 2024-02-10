@@ -83,8 +83,8 @@ var CreateCmd = &cobra.Command{
 		canStream := (outputSchema != nil &&
 			outputSchema.Type == "array" &&
 			outputSchema.Items.Value.Type == "string" &&
-			outputSchema.Extensions["x-cog-array-display"] == "concatenate" &&
-			outputSchema.Extensions["x-cog-array-type"] == "iterator")
+			outputSchema.Extensions["x-cog-array-type"] == "iterator" &&
+			outputSchema.Extensions["x-cog-array-display"] == "concatenate")
 		shouldStream := canStream && !cmd.Flags().Changed("wait") &&
 			(cmd.Flags().Changed("stream") || !cmd.Flags().Changed("no-stream"))
 
