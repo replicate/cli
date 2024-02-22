@@ -21,7 +21,8 @@ sudo make install
 
 ## Upgrade
 
-If you're using macOS and you previously installed the CLI with Homebrew, run the following:
+If you previously installed the CLI with Homebrew,
+you can upgrade to the latest version by running the following command:
 
 ```console
 brew upgrade replicate
