@@ -2,24 +2,83 @@ package util_test
 
 import (
 	"context"
+	"encoding/json"
+	"net/http"
+	"net/http/httptest"
+	"net/url"
+	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/replicate/cli/internal/util"
+	"github.com/replicate/replicate-go"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestParseInputs(t *testing.T) {
+	ctx := context.Background()
+
+	mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == "POST" && r.URL.Path == "/files" {
+			file := &replicate.File{
+				URLs: map[string]string{
+					"get": "https://api.replicate.com/v1/files/123",
+				},
+			}
+
+			w.WriteHeader(http.StatusCreated)
+
+			w.Header().Set("Content-Type", "application/json")
+			data, err := json.Marshal(file)
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+
+			w.Write(data)
+			return
+		}
+		w.WriteHeader(http.StatusNotFound)
+	}))
+	defer mockServer.Close()
+
+	httpClient := &http.Client{
+		Transport: &http.Transport{
+			Proxy: func(_ *http.Request) (*url.URL, error) {
+				return url.Parse(mockServer.URL)
+			},
+		},
+	}
+
+	r8, err := replicate.NewClient(
+		replicate.WithBaseURL(mockServer.URL),
+		replicate.WithToken("test-token"),
+		replicate.WithHTTPClient(httpClient),
+	)
+	if err != nil {
+		t.Fatalf("failed to create replicate client: %v", err)
+	}
+
+	tempDir := t.TempDir()
+	tmpFilePath := filepath.Join(tempDir, "hello.txt")
+	if err := os.WriteFile(tmpFilePath, []byte("Hello, world!"), 0o666); err != nil {
+		t.Fatalf("failed to write to temp file: %v", err)
+	}
+
 	args := []string{
 		"integer=1",
 		"number=1.0",
 		"boolean=true",
 		"string=hello",
 		"array_of_integers=[1,2,3]",
+		"file=@" + tmpFilePath,
 	}
 
-	ctx := context.Background()
-	inputs, err := util.ParseInputs(ctx, args, "", "=")
+	inputs, err := util.ParseInputs(ctx, r8, args, "", "=")
+	if err != nil {
+		t.Fatalf("failed to parse inputs: %v", err)
+	}
 
 	assert.NoError(t, err)
 	assert.Equal(t, map[string]string{
@@ -28,6 +87,7 @@ func TestParseInputs(t *testing.T) {
 		"boolean":           "true",
 		"string":            "hello",
 		"array_of_integers": "[1,2,3]",
+		"file":              "https://api.replicate.com/v1/files/123",
 	}, inputs)
 }
 

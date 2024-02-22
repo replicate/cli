@@ -69,7 +69,7 @@ var CreateCmd = &cobra.Command{
 		}
 
 		separator := cmd.Flag("separator").Value.String()
-		inputs, err := util.ParseInputs(ctx, args[1:], stdin, separator)
+		inputs, err := util.ParseInputs(ctx, r8, args[1:], stdin, separator)
 		if err != nil {
 			return fmt.Errorf("failed to parse inputs: %w", err)
 		}

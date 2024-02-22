@@ -11,9 +11,10 @@ import (
 	"strings"
 
 	"github.com/PaesslerAG/jsonpath"
+	"github.com/replicate/replicate-go"
 )
 
-func ParseInputs(ctx context.Context, args []string, stdin string, sep string) (map[string]string, error) {
+func ParseInputs(ctx context.Context, r8 *replicate.Client, args []string, stdin string, sep string) (map[string]string, error) {
 	re := regexp.MustCompile(`{{(.*?)}}`)
 
 	inputs := make(map[string]string)
@@ -55,9 +56,15 @@ func ParseInputs(ctx context.Context, args []string, stdin string, sep string) (
 		// Read from file
 		if strings.HasPrefix(v, "@") {
 			path := strings.TrimSpace(v[1:])
-			downloadURL, err := UploadFile(ctx, path)
+
+			file, err := r8.CreateFileFromPath(ctx, path, nil)
 			if err != nil {
-				return nil, fmt.Errorf("failed to upload file: %w", err)
+				return nil, fmt.Errorf("failed to create file from path: %w", err)
+			}
+
+			downloadURL := file.URLs["get"]
+			if downloadURL == "" {
+				return nil, fmt.Errorf("failed to get download URL for file")
 			}
 
 			v = downloadURL
