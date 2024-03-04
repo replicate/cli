@@ -14,11 +14,11 @@ require (
 	github.com/getkin/kin-openapi v0.123.0
 	github.com/golangci/golangci-lint v1.56.2
 	github.com/mattn/go-isatty v0.0.20
-	github.com/replicate/replicate-go v0.16.1
+	github.com/replicate/replicate-go v0.17.0
 	github.com/schollz/progressbar/v3 v3.13.1
 	github.com/spf13/cobra v1.8.0
 	github.com/stretchr/testify v1.8.4
-	go.uber.org/nilaway v0.0.0-20231130193605-0ef3071d1630
+	go.uber.org/nilaway v0.0.0-20240221165226-a488bd0b67b3
 	golang.org/x/sync v0.6.0
 	gopkg.in/yaml.v3 v3.0.1
 )
@@ -114,7 +114,7 @@ require (
 	github.com/kisielk/errcheck v1.7.0 // indirect
 	github.com/kisielk/gotool v1.0.0 // indirect
 	github.com/kkHAIKE/contextcheck v1.1.4 // indirect
-	github.com/klauspost/compress v1.17.0 // indirect
+	github.com/klauspost/compress v1.17.6 // indirect
 	github.com/kulti/thelper v0.6.3 // indirect
 	github.com/kunwardeep/paralleltest v1.0.9 // indirect
 	github.com/kyoh86/exportloopref v0.1.11 // indirect
@@ -184,7 +184,7 @@ require (
 	github.com/spf13/viper v1.12.0 // indirect
 	github.com/ssgreg/nlreturn/v2 v2.2.1 // indirect
 	github.com/stbenjam/no-sprintf-host-port v0.1.1 // indirect
-	github.com/stretchr/objx v0.5.0 // indirect
+	github.com/stretchr/objx v0.5.1 // indirect
 	github.com/subosito/gotenv v1.4.1 // indirect
 	github.com/t-yuki/gocover-cobertura v0.0.0-20180217150009-aaee18c8195c // indirect
 	github.com/tdakkota/asciicheck v0.2.0 // indirect
