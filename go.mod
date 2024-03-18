@@ -14,7 +14,7 @@ require (
 	github.com/getkin/kin-openapi v0.123.0
 	github.com/golangci/golangci-lint v1.56.2
 	github.com/mattn/go-isatty v0.0.20
-	github.com/replicate/replicate-go v0.17.0
+	github.com/replicate/replicate-go v0.18.1
 	github.com/schollz/progressbar/v3 v3.13.1
 	github.com/spf13/cobra v1.8.0
 	github.com/stretchr/testify v1.9.0
