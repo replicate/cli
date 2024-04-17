@@ -6,9 +6,10 @@ import (
 	"os"
 	"strings"
 
+	"github.com/spf13/cobra"
+
 	"github.com/replicate/cli/internal/client"
 	"github.com/replicate/cli/internal/config"
-	"github.com/spf13/cobra"
 )
 
 // loginCmd represents the login command

@@ -5,9 +5,10 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/replicate/replicate-go"
+
 	"github.com/replicate/cli/internal"
 	"github.com/replicate/cli/internal/config"
-	"github.com/replicate/replicate-go"
 )
 
 func NewClient(opts ...replicate.ClientOption) (*replicate.Client, error) {

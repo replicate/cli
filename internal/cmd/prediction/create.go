@@ -11,12 +11,13 @@ import (
 	"github.com/briandowns/spinner"
 	"github.com/cli/browser"
 	"github.com/getkin/kin-openapi/openapi3"
-	"github.com/replicate/cli/internal/client"
-	"github.com/replicate/cli/internal/identifier"
-	"github.com/replicate/cli/internal/util"
 	"github.com/replicate/replicate-go"
 	"github.com/schollz/progressbar/v3"
 	"github.com/spf13/cobra"
+
+	"github.com/replicate/cli/internal/client"
+	"github.com/replicate/cli/internal/identifier"
+	"github.com/replicate/cli/internal/util"
 )
 
 var CreateCmd = &cobra.Command{

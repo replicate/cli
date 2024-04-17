@@ -5,9 +5,10 @@ import (
 	"fmt"
 	"os/exec"
 
+	"github.com/spf13/cobra"
+
 	"github.com/replicate/cli/internal/client"
 	"github.com/replicate/cli/internal/util"
-	"github.com/spf13/cobra"
 
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"

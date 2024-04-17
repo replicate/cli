@@ -7,11 +7,12 @@ import (
 
 	"github.com/briandowns/spinner"
 	"github.com/cli/browser"
+	"github.com/replicate/replicate-go"
+	"github.com/spf13/cobra"
+
 	"github.com/replicate/cli/internal/client"
 	"github.com/replicate/cli/internal/identifier"
 	"github.com/replicate/cli/internal/util"
-	"github.com/replicate/replicate-go"
-	"github.com/spf13/cobra"
 )
 
 // CreateCmd represents the create command
