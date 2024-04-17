@@ -73,8 +73,10 @@ var showCmd = &cobra.Command{
 
 		fmt.Println(model.Name)
 		fmt.Println(model.Description)
-		fmt.Println()
-		fmt.Println("Latest version:", model.LatestVersion.ID)
+		if model.LatestVersion != nil {
+			fmt.Println()
+			fmt.Println("Latest version:", model.LatestVersion.ID)
+		}
 
 		return nil
 	},
