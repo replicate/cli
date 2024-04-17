@@ -11,9 +11,10 @@ import (
 	"testing"
 
 	"github.com/getkin/kin-openapi/openapi3"
-	"github.com/replicate/cli/internal/util"
 	"github.com/replicate/replicate-go"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/replicate/cli/internal/util"
 )
 
 func TestParseInputs(t *testing.T) {
