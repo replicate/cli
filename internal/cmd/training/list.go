@@ -26,7 +26,7 @@ func (m model) Init() tea.Cmd { return nil }
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
-	switch msg := msg.(type) {
+	switch msg := msg.(type) { //nolint:gocritic
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "esc":
@@ -57,7 +57,7 @@ func (m model) View() string {
 var listCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List trainings",
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(cmd *cobra.Command, _ []string) error {
 		ctx := cmd.Context()
 
 		r8, err := client.NewClient()

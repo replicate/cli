@@ -23,8 +23,8 @@ func GetSchemas(version replicate.ModelVersion) (input *openapi3.Schema, output 
 	}
 
 	schemas := spec.Components.Schemas
-	inputSchemaRef, _ := schemas["Input"]
-	outputSchemaRef, _ := schemas["Output"]
+	inputSchemaRef := schemas["Input"]
+	outputSchemaRef := schemas["Output"]
 
 	if inputSchemaRef != nil {
 		input = inputSchemaRef.Value

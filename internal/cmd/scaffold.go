@@ -30,11 +30,11 @@ var ScaffoldCmd = &cobra.Command{
 			return err
 		}
 
-		predictionId, err := parsePredictionId(args[0])
+		predictionID, err := parsePredictionID(args[0])
 		if err != nil {
 			return fmt.Errorf("failed to parse prediction ID: %w", err)
 		}
-		prediction, err := client.GetPrediction(ctx, predictionId)
+		prediction, err := client.GetPrediction(ctx, predictionID)
 		if prediction == nil || err != nil {
 			return fmt.Errorf("failed to get prediction: %w", err)
 		}
@@ -43,7 +43,7 @@ var ScaffoldCmd = &cobra.Command{
 		if len(args) == 2 {
 			directory = args[1]
 		} else {
-			directory = predictionId
+			directory = predictionID
 		}
 
 		template, _ := cmd.Flags().GetString("template")
@@ -64,7 +64,7 @@ func init() {
 }
 
 // Parse the prediction id from a url, or return the prediction id if it's not a url
-func parsePredictionId(value string) (string, error) {
+func parsePredictionID(value string) (string, error) {
 	// Case 1: A prediction ID
 	if !strings.Contains(value, "/") {
 		return value, nil
@@ -72,37 +72,37 @@ func parsePredictionId(value string) (string, error) {
 
 	// Case 2: A URL in the form https://replicate.com/p/{id}
 	if strings.HasPrefix(value, "replicate.com/p/") || strings.HasPrefix(value, "https://replicate.com/p/") {
-		splitUrl := strings.Split(value, "/")
-		if len(splitUrl) == 0 {
+		splitURL := strings.Split(value, "/")
+		if len(splitURL) == 0 {
 			return "", fmt.Errorf("invalid URL format")
 		}
-		return splitUrl[len(splitUrl)-1], nil
+		return splitURL[len(splitURL)-1], nil
 	}
 
 	// Case 3: A URL in the form https://api.replicate.com/v1/predictions/{id}
 	if strings.HasPrefix(value, "api.replicate.com/v1/predictions/") || strings.HasPrefix(value, "https://api.replicate.com/v1/predictions/") {
-		splitUrl := strings.Split(value, "/")
-		if len(splitUrl) == 0 {
+		splitURL := strings.Split(value, "/")
+		if len(splitURL) == 0 {
 			return "", fmt.Errorf("invalid URL format")
 		}
-		return splitUrl[len(splitUrl)-1], nil
+		return splitURL[len(splitURL)-1], nil
 	}
 
 	// Case 4: A URL in the form "https://replicate.com/*?prediction={id}"
 	if strings.Contains(value, "replicate.com") || strings.Contains(value, "https://replicate.com") {
-		parsedUrl, err := url.Parse(value)
+		parsedURL, err := url.Parse(value)
 		if err != nil {
 			return "", fmt.Errorf("failed to parse URL: %w", err)
 		}
-		queryParams, err := url.ParseQuery(parsedUrl.RawQuery)
+		queryParams, err := url.ParseQuery(parsedURL.RawQuery)
 		if err != nil {
 			return "", fmt.Errorf("failed to parse query parameters: %w", err)
 		}
-		predictionId := queryParams.Get("prediction")
-		if predictionId == "" {
+		predictionID := queryParams.Get("prediction")
+		if predictionID == "" {
 			return "", fmt.Errorf("no prediction ID found in URL")
 		}
-		return predictionId, nil
+		return predictionID, nil
 	}
 
 	// If none of the above cases match, return an error

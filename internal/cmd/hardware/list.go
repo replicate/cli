@@ -15,7 +15,7 @@ import (
 var listCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List hardware",
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(cmd *cobra.Command, _ []string) error {
 		ctx := cmd.Context()
 
 		if cmd.Flags().Changed("web") {

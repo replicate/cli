@@ -25,7 +25,7 @@ You can find your Replicate API token at https://replicate.com/account`,
 
 	# Log in with token file
 	$ replicate auth login --token-stdin < path/to/token`,
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(cmd *cobra.Command, _ []string) error {
 		ctx := cmd.Context()
 
 		tokenStdin, err := cmd.Flags().GetBool("token-stdin")
