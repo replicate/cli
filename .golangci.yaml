@@ -68,6 +68,8 @@ linters-settings:
     # with golangci-lint call it on a directory with the changed file.
     check-exported: false
   gocritic:
+    disabled-checks:
+      - singleCaseSwitch
     enabled-checks:
       - appendCombine
       - argOrder
