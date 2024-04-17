@@ -95,7 +95,7 @@ func GetPipedArgs() (string, error) {
 		}
 
 		return string(output), nil
-	} else {
-		return "", nil
 	}
+
+	return "", nil
 }

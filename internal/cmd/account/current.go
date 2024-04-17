@@ -15,7 +15,7 @@ import (
 var CurrentCmd = &cobra.Command{
 	Use:   "current",
 	Short: "Show the current account",
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(cmd *cobra.Command, _ []string) error {
 		ctx := cmd.Context()
 
 		r8, err := client.NewClient()
