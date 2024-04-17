@@ -44,6 +44,10 @@ clean:
 test:
 	$(GO) test -v ./...
 
+.PHONY: format
+format:
+	$(GO) run golang.org/x/tools/cmd/goimports@latest -d -w -local $(shell $(GO) list -m) .
+
 .PHONY: lint
 lint: lint-golangci lint-nilaway
 
