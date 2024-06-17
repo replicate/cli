@@ -9,7 +9,7 @@ require (
 	github.com/briandowns/spinner v1.23.0
 	github.com/charmbracelet/bubbles v0.16.1
 	github.com/charmbracelet/bubbletea v0.26.4
-	github.com/charmbracelet/lipgloss v0.8.0
+	github.com/charmbracelet/lipgloss v0.11.0
 	github.com/cli/browser v1.3.0
 	github.com/getkin/kin-openapi v0.125.0
 	github.com/mattn/go-isatty v0.0.20
@@ -45,7 +45,6 @@ require (
 	github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826 // indirect
 	github.com/muesli/ansi v0.0.0-20230316100256-276c6243b2f6 // indirect
 	github.com/muesli/cancelreader v0.2.2 // indirect
-	github.com/muesli/reflow v0.3.0 // indirect
 	github.com/muesli/termenv v0.15.2 // indirect
 	github.com/perimeterx/marshmallow v1.1.5 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
