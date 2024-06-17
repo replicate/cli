@@ -93,7 +93,7 @@ func printModelVersionSchema(version *replicate.ModelVersion) error {
 	if outputSchema != nil {
 		fmt.Println("Output:")
 		fmt.Printf("- type: %s\n", outputSchema.Type)
-		if outputSchema.Type == "array" {
+		if outputSchema.Type.Is("array") {
 			fmt.Printf("- items: %s %s\n", outputSchema.Items.Value.Type, outputSchema.Items.Value.Format)
 		}
 		fmt.Println()
