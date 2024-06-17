@@ -11,7 +11,7 @@ require (
 	github.com/charmbracelet/bubbletea v0.24.2
 	github.com/charmbracelet/lipgloss v0.8.0
 	github.com/cli/browser v1.3.0
-	github.com/getkin/kin-openapi v0.123.0
+	github.com/getkin/kin-openapi v0.125.0
 	github.com/mattn/go-isatty v0.0.20
 	github.com/replicate/replicate-go v0.18.1
 	github.com/schollz/progressbar/v3 v3.13.1
