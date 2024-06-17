@@ -99,16 +99,19 @@ func coerceType(input string, schema *openapi3.Schema) (interface{}, error) {
 		return input, nil
 	}
 
-	switch schema.Type {
-	case "integer":
+	if schema.Type.Is("integer") {
 		return convertToInt(input)
-	case "number":
+	}
+	if schema.Type.Is("number") {
 		return convertToFloat(input)
-	case "boolean":
+	}
+	if schema.Type.Is("boolean") {
 		return convertToBool(input)
-	case "string":
+	}
+	if schema.Type.Is("string") {
 		return convertToString(input)
-	case "array":
+	}
+	if schema.Type.Is("array") {
 		var value []interface{}
 		err := json.Unmarshal([]byte(input), &value)
 		if err != nil {
@@ -130,21 +133,22 @@ func coerceType(input string, schema *openapi3.Schema) (interface{}, error) {
 		}
 
 		return value, nil
-	default:
-		// If the property has a default value, attempt to convert to that type
-		switch schema.Default.(type) {
-		case int:
-			return convertToInt(input)
-		case float64:
-			return convertToFloat(input)
-		case bool:
-			return convertToBool(input)
-		case string:
-			return convertToString(input)
-		}
-
-		return nil, fmt.Errorf("unknown type %s", schema.Type)
 	}
+
+	// If the property has a default value, attempt to convert to that type
+	switch schema.Default.(type) {
+	case int:
+		return convertToInt(input)
+	case float64:
+		return convertToFloat(input)
+	case bool:
+		return convertToBool(input)
+	case string:
+		return convertToString(input)
+	}
+
+	return nil, fmt.Errorf("unknown type %s", schema.Type)
+
 }
 
 // convertToString is a no-op

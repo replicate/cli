@@ -94,34 +94,34 @@ func TestParseInputs(t *testing.T) {
 
 func TestCoerceTypesWithSchema(t *testing.T) {
 	schema := openapi3.NewSchema()
-	schema.Type = "object"
+	schema.Type = &openapi3.Types{openapi3.TypeObject}
 	schema.Properties = map[string]*openapi3.SchemaRef{
 		"integer": {
 			Value: &openapi3.Schema{
-				Type: "integer",
+				Type: &openapi3.Types{openapi3.TypeInteger},
 			},
 		},
 		"number": {
 			Value: &openapi3.Schema{
-				Type: "number",
+				Type: &openapi3.Types{openapi3.TypeNumber},
 			},
 		},
 		"boolean": {
 			Value: &openapi3.Schema{
-				Type: "boolean",
+				Type: &openapi3.Types{openapi3.TypeBoolean},
 			},
 		},
 		"string": {
 			Value: &openapi3.Schema{
-				Type: "string",
+				Type: &openapi3.Types{openapi3.TypeString},
 			},
 		},
 		"array_of_integers": {
 			Value: &openapi3.Schema{
-				Type: "array",
+				Type: &openapi3.Types{openapi3.TypeArray},
 				Items: &openapi3.SchemaRef{
 					Value: &openapi3.Schema{
-						Type: "integer",
+						Type: &openapi3.Types{openapi3.TypeInteger},
 					},
 				},
 			},
