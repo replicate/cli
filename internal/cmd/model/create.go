@@ -1,6 +1,7 @@
 package model
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"github.com/cli/browser"
@@ -59,7 +60,7 @@ var createCmd = &cobra.Command{
 		}
 
 		if flags.Changed("json") || !util.IsTTY() {
-			bytes, err := model.MarshalJSON()
+			bytes, err := json.MarshalIndent(model, "", "  ")
 			if err != nil {
 				return fmt.Errorf("failed to serialize model: %w", err)
 			}
