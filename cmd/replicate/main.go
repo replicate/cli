@@ -9,6 +9,7 @@ import (
 	"github.com/replicate/cli/internal/cmd"
 	"github.com/replicate/cli/internal/cmd/account"
 	"github.com/replicate/cli/internal/cmd/auth"
+	"github.com/replicate/cli/internal/cmd/deployment"
 	"github.com/replicate/cli/internal/cmd/hardware"
 	"github.com/replicate/cli/internal/cmd/model"
 	"github.com/replicate/cli/internal/cmd/prediction"
@@ -41,6 +42,7 @@ func init() {
 		model.RootCmd,
 		prediction.RootCmd,
 		training.RootCmd,
+		deployment.RootCmd,
 		hardware.RootCmd,
 		cmd.ScaffoldCmd,
 	} {
