@@ -6,7 +6,7 @@ toolchain go1.21.1
 
 require (
 	github.com/PaesslerAG/jsonpath v0.1.1
-	github.com/briandowns/spinner v1.23.0
+	github.com/briandowns/spinner v1.23.1
 	github.com/charmbracelet/bubbles v0.16.1
 	github.com/charmbracelet/bubbletea v0.26.4
 	github.com/charmbracelet/lipgloss v0.11.0
