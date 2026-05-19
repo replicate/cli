@@ -94,7 +94,7 @@ func SetAPITokenForHost(apiToken, host string) error {
 	}
 
 	if _, err := os.Stat(ConfigFilePath); os.IsNotExist(err) {
-		err = os.MkdirAll(filepath.Dir(ConfigFilePath), 0o755)
+		err = os.MkdirAll(filepath.Dir(ConfigFilePath), 0o700)
 		if err != nil {
 			return fmt.Errorf("failed to create config directory: %w", err)
 		}
@@ -127,10 +127,17 @@ func SetAPITokenForHost(apiToken, host string) error {
 		return fmt.Errorf("failed to marshal config file: %w", err)
 	}
 
-	err = os.WriteFile(ConfigFilePath, data, 0o644)
+	// Write with 0o600 so the file is only readable by the user. The previous
+	// 0o644 left the API token world-readable on default-umask systems. We also
+	// chmod after the write to handle the pre-existing-file case (WriteFile's
+	// mode arg applies on create, not on overwrite), and tighten the parent
+	// directory to 0o700.
+	err = os.WriteFile(ConfigFilePath, data, 0o600)
 	if err != nil {
 		return fmt.Errorf("failed to write config file: %w", err)
 	}
+	_ = os.Chmod(ConfigFilePath, 0o600)
+	_ = os.Chmod(filepath.Dir(ConfigFilePath), 0o700)
 
 	return nil
 }
